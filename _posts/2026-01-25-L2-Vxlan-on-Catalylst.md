@@ -85,3 +85,5 @@ interface nve1
  host-reachability protocol bgp
  member vni 10000 ingress-replication
 ```
+Here we can see that we are learning the mac address' for both host
+![Leaning Mac Address' of both host]({{ site.baseurl }}/assets/l2vpn-evpn-macs.png)
