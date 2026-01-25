@@ -8,4 +8,43 @@ VXLAN is becoming more prevaltent in the Campus network as an Overlay SDN option
 4). Create Vlans and assign them a VNI (VXLAN Network Identifier), this is needed to map a vlan into the vxlan fabric
 5). Create the NVE (Network Virtualization edge), this is the where the vxlan tunnel will terminate and is commonly refered to as the VTEP(VXLAN tunnel end point)
 
+I have created 2 loopbacks on each switch WEST-CSW = 10.100.1.1, EAST-CSW = 10.100.1.2 and made sure that they are able to ping each over the routed connection between the 2 switches, here is the EIGRP settings that I am using to esablish this connection:
 
+'''
+router eigrp Underlay
+ !
+ address-family ipv4 unicast autonomous-system 100
+  !
+  topology base
+  exit-af-topology
+  network 10.0.0.0
+ exit-address-family
+ '''
+
+ Next lets bring up MP-BGP EVPN between the to switchs: 
+
+WEST-CSW
+ '''
+router bgp 65501
+ bgp log-neighbor-changes
+ neighbor 10.100.1.2 remote-as 65501
+ neighbor 10.100.1.2 update-source Loopback100
+ !
+ address-family l2vpn evpn
+  neighbor 10.100.1.2 activate
+  neighbor 10.100.1.2 send-community extended
+ exit-address-family
+ '''
+
+ EAST-CSW
+ '''
+ router bgp 65501
+ bgp log-neighbor-changes
+ neighbor 10.100.1.1 remote-as 65501
+ neighbor 10.100.1.1 update-source Loopback100
+ !
+ address-family l2vpn evpn
+  neighbor 10.100.1.1 activate
+  neighbor 10.100.1.1 send-community extended
+ exit-address-family
+ '''
