@@ -70,6 +70,13 @@ l2vpn evpn instance 10 vlan-based
 vlan configuration 10
  member evpn-instance 10 vni 10000
 ```
+When using the IOL image in CML you also need to define the global l2vpn evpn behavior to get import and export to work:
+```
+l2vpn evpn 
+  router-id loopback 100
+  replication-type ingress 
+```
+
 Lastly all we need to do is create the VTEP and do some testing to make sure that everything is working. Here we are going to tell the VTEP to use bgp evpn for host reacablability and then attach the member vni that we created:
 ```
 interface nve1
