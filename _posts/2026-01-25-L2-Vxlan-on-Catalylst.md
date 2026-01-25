@@ -48,3 +48,12 @@ router bgp 65501
   neighbor 10.100.1.1 send-community extended
  exit-address-family
  ```
+Verify the connection is up:
+```
+WEST-CSW#show bgp l2vpn evpn summary 
+BGP router identifier 10.100.1.1, local AS number 65501
+BGP table version is 1, main routing table version 1
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+10.100.1.2      4        65501      10      10        1    0    0 00:05:05        0
+```
