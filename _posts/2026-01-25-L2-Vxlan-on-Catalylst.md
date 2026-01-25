@@ -1,6 +1,6 @@
 ## VXLAN EVPN on Catalyst Switches (Basic L2 Stretch)
 
-VXLAN is becoming increasingly prevalent in campus networks as an overlay SDN option. In this post, I’ll walk through how to set up a **basic VXLAN EVPN deployment on Cisco Catalyst switches** using **MP-BGP EVPN** as the control plane.
+VXLAN is becoming increasingly prevalent in campus networks as an overlay SDN option. In this post, I’ll walk through how to set up a basic VXLAN EVPN deployment on Cisco Catalyst switches using **MP-BGP EVPN** as the control plane.
 
 While VXLAN supports multiple control-plane options — such as multicast-based flooding, LISP, or even static VXLAN — MP-BGP EVPN has become the most common and scalable choice, especially in enterprise and campus designs.
 
@@ -11,6 +11,10 @@ For this example, I’ll use **two Catalyst switches** connected by a routed lin
 ## Lab Topology
 
 ![Basic Lab set up]({{ site.baseurl }}/assets/east-west-vxlan.png)
+- **WEST-CSW:** `10.100.1.1`
+- **EAST-CSW:** `10.100.1.2`
+- **Host-A:** `192.168.1.100`
+- **Host-B:** `192.168.1.101`
 
 ---
 
@@ -57,7 +61,7 @@ router eigrp Underlay
   network 10.0.0.0
  exit-address-family
  ```
-##MP-BGP EVPN Configuration
+## MP-BGP EVPN Configuration
 Next, we establish the EVPN control plane using iBGP between the loopbacks.
 
 WEST-CSW
@@ -95,7 +99,7 @@ Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State
 10.100.1.2      4        65501      10      10        1    0    0 00:05:05        0
 ```
 
-##VLAN to VNI Mapping
+## VLAN to VNI Mapping
 Next, we create VLAN 10 and map it to VNI 10000. We also specify ingress replication to handle BUM (Broadcast, Unknown unicast, Multicast) traffic.
 ```
 vlan 10
@@ -115,7 +119,7 @@ l2vpn evpn
   replication-type ingress 
 ```
 
-##Creating the VTEP (NVE Interface)
+## Creating the VTEP (NVE Interface)
 Lastly all we need to do is create the VTEP and do some testing to make sure that everything is working. Here we are going to tell the VTEP to use bgp evpn for host reacablability and then attach the member vni that we created:
 ```
 interface nve1
@@ -124,7 +128,7 @@ interface nve1
  host-reachability protocol bgp
  member vni 10000 ingress-replication
 ```
-##Verification
+## Verification
 At this point, MAC addresses should begin to populate via EVPN. We can verify that both switches are learning MACs for hosts across the VXLAN fabric.
 ![Leaning Mac Address' of both host]({{ site.baseurl }}/assets/l2vpn-evpn-macs.png)
 
@@ -134,4 +138,14 @@ show nve peers
 show nve vni
 show l2route evpn mac
 show bgp l2vpn evpn
+```
+Lastly, Ping between the 2 hosts:
+```
+Host-A:~$ ping 192.168.1.101
+PING 192.168.1.101 (192.168.1.101): 56 data bytes
+64 bytes from 192.168.1.101: seq=0 ttl=42 time=2.709 ms
+64 bytes from 192.168.1.101: seq=1 ttl=42 time=2.743 ms
+64 bytes from 192.168.1.101: seq=2 ttl=42 time=2.689 ms
+64 bytes from 192.168.1.101: seq=3 ttl=42 time=2.401 ms
+64 bytes from 192.168.1.101: seq=4 ttl=42 time=2.482 ms
 ```
