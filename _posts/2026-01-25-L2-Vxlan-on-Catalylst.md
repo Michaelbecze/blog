@@ -57,3 +57,24 @@ BGP table version is 1, main routing table version 1
 Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
 10.100.1.2      4        65501      10      10        1    0    0 00:05:05        0
 ```
+
+Next I am going to create vlan 10 and attach it to VNI 10000, and tell it to do VXLAN encapluation with Ingress Replication for BUM traffic:
+```
+vlan 10
+ name VXLAN
+!
+l2vpn evpn instance 10 vlan-based
+ encapsulation vxlan
+ replication-type ingress
+!
+vlan configuration 10
+ member evpn-instance 10 vni 10000
+```
+Lastly all we need to do is create the VTEP and do some testing to make sure that everything is working. Here we are going to tell the VTEP to use bgp evpn for host reacablability and then attach the member vni that we created:
+```
+interface nve1
+ no ip address
+ source-interface Loopback100
+ host-reachability protocol bgp
+ member vni 10000 ingress-replication
+```
