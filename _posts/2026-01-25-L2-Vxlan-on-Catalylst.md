@@ -10,7 +10,7 @@ VXLAN is becoming more prevaltent in the Campus network as an Overlay SDN option
 
 I have created 2 loopbacks on each switch WEST-CSW = 10.100.1.1, EAST-CSW = 10.100.1.2 and made sure that they are able to ping each over the routed connection between the 2 switches, here is the EIGRP settings that I am using to esablish this connection:
 
-'''
+```
 router eigrp Underlay
  !
  address-family ipv4 unicast autonomous-system 100
@@ -19,12 +19,12 @@ router eigrp Underlay
   exit-af-topology
   network 10.0.0.0
  exit-address-family
- '''
+ ```
 
  Next lets bring up MP-BGP EVPN between the to switchs: 
 
 WEST-CSW
- '''
+ ```
 router bgp 65501
  bgp log-neighbor-changes
  neighbor 10.100.1.2 remote-as 65501
@@ -34,10 +34,10 @@ router bgp 65501
   neighbor 10.100.1.2 activate
   neighbor 10.100.1.2 send-community extended
  exit-address-family
- '''
+ ```
 
  EAST-CSW
- '''
+ ```
  router bgp 65501
  bgp log-neighbor-changes
  neighbor 10.100.1.1 remote-as 65501
@@ -47,4 +47,4 @@ router bgp 65501
   neighbor 10.100.1.1 activate
   neighbor 10.100.1.1 send-community extended
  exit-address-family
- '''
+ ```
