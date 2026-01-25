@@ -1,14 +1,51 @@
-VXLAN is becoming more prevaltent in the Campus network as an Overlay SDN option. I am going to take some time to go over how to set up VXLAN EVPN on Catalyst Switches. While there are other options for the control plane like Multicast, LISP, or even statically configured I am going to use MP-BGP EVPN as it is the most popluar choose. In this example i am just going to use 2 switches with a routed link to show a very basic L2 VXLAN strech. First I will go over quicklly all the components that are needed to make this connection work. 
+## VXLAN EVPN on Catalyst Switches (Basic L2 Stretch)
+
+VXLAN is becoming increasingly prevalent in campus networks as an overlay SDN option. In this post, I’ll walk through how to set up a **basic VXLAN EVPN deployment on Cisco Catalyst switches** using **MP-BGP EVPN** as the control plane.
+
+While VXLAN supports multiple control-plane options — such as multicast-based flooding, LISP, or even static VXLAN — MP-BGP EVPN has become the most common and scalable choice, especially in enterprise and campus designs.
+
+For this example, I’ll use **two Catalyst switches** connected by a routed link to demonstrate a **simple Layer 2 VXLAN stretch**. The goal here is not a full production design, but to clearly show the required building blocks and how they fit together.
+
+---
+
+## Lab Topology
 
 ![Basic Lab set up]({{ site.baseurl }}/assets/east-west-vxlan.png)
 
-1). Make sure that we are using jumbo frames, because VXLAN added an extra 50byte header we need the extra overhead
-2). Routed underlay, this allows for the loopbacks that we are going to create for EVPN to have reacablity. In this example I am going to use EIGRP for the routed underlay.
-3). MP-BGP EVPN, we will bring up EVPN using our loopbacks.
-4). Create Vlans and assign them a VNI (VXLAN Network Identifier), this is needed to map a vlan into the vxlan fabric
-5). Create the NVE (Network Virtualization edge), this is the where the vxlan tunnel will terminate and is commonly refered to as the VTEP(VXLAN tunnel end point)
+---
 
-I have created 2 loopbacks on each switch WEST-CSW = 10.100.1.1, EAST-CSW = 10.100.1.2 and made sure that they are able to ping each over the routed connection between the 2 switches, here is the EIGRP settings that I am using to esablish this connection:
+## Key Components Required
+
+Before configuring VXLAN EVPN, there are several foundational components that must be in place:
+
+1. **Jumbo Frames**  
+   VXLAN adds approximately **50 bytes of encapsulation overhead**. To avoid fragmentation, the underlay network must support jumbo frames.
+
+2. **Routed Underlay Network**  
+   The underlay provides **IP reachability** between VTEPs. This allows the loopback interfaces used for EVPN peering and VXLAN encapsulation to communicate.  
+   In this lab, I’m using **EIGRP** for simplicity.
+
+3. **MP-BGP EVPN Control Plane**  
+   MP-BGP EVPN is used to exchange **MAC address, VLAN/VNI, and host reachability information** between VTEPs.
+
+4. **VLAN-to-VNI Mapping**  
+   Each VLAN that needs to be extended over VXLAN must be mapped to a **VXLAN Network Identifier (VNI)**.
+
+5. **NVE Interface (VTEP)**  
+   The **Network Virtualization Edge (NVE)** interface is where VXLAN tunnels terminate. This interface effectively turns the switch into a **VTEP (VXLAN Tunnel Endpoint)**.
+
+---
+
+## Underlay Configuration (EIGRP)
+
+Each switch has a loopback interface used for EVPN and VXLAN:
+
+- **WEST-CSW:** `10.100.1.1`
+- **EAST-CSW:** `10.100.1.2`
+
+These loopbacks must be reachable across the routed underlay.
+
+Below is the EIGRP configuration used to provide that reachability:
 
 ```
 router eigrp Underlay
@@ -20,8 +57,8 @@ router eigrp Underlay
   network 10.0.0.0
  exit-address-family
  ```
-
- Next lets bring up MP-BGP EVPN between the to switchs: 
+##MP-BGP EVPN Configuration
+Next, we establish the EVPN control plane using iBGP between the loopbacks.
 
 WEST-CSW
  ```
@@ -58,7 +95,8 @@ Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State
 10.100.1.2      4        65501      10      10        1    0    0 00:05:05        0
 ```
 
-Next I am going to create vlan 10 and attach it to VNI 10000, and tell it to do VXLAN encapluation with Ingress Replication for BUM traffic:
+##VLAN to VNI Mapping
+Next, we create VLAN 10 and map it to VNI 10000. We also specify ingress replication to handle BUM (Broadcast, Unknown unicast, Multicast) traffic.
 ```
 vlan 10
  name VXLAN
@@ -77,6 +115,7 @@ l2vpn evpn
   replication-type ingress 
 ```
 
+##Creating the VTEP (NVE Interface)
 Lastly all we need to do is create the VTEP and do some testing to make sure that everything is working. Here we are going to tell the VTEP to use bgp evpn for host reacablability and then attach the member vni that we created:
 ```
 interface nve1
@@ -85,5 +124,14 @@ interface nve1
  host-reachability protocol bgp
  member vni 10000 ingress-replication
 ```
-Here we can see that we are learning the mac address' for both host
+##Verification
+At this point, MAC addresses should begin to populate via EVPN. We can verify that both switches are learning MACs for hosts across the VXLAN fabric.
 ![Leaning Mac Address' of both host]({{ site.baseurl }}/assets/l2vpn-evpn-macs.png)
+
+Extra Verification commands:
+```
+show nve peers
+show nve vni
+show l2route evpn mac
+show bgp l2vpn evpn
+```
