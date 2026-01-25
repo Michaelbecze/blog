@@ -1,3 +1,9 @@
 theme: minima
 title: The Forwarding Table
 description: A technical blog on routing decisions, packet flow, and how data moves through real networks.
+
+
+collections:
+  vxlan:
+    output: true
+    permalink: /vxlan/:name/
