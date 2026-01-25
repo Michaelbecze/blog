@@ -5,3 +5,5 @@ VXLAN is becoming more prevaltent in the Campus network as an Overlay SDN option
 3). MP-BGP EVPN, we will bring up EVPN using our loopbacks.
 4). Create Vlans and assign them a VNI (VXLAN Network Identifier), this is needed to map a vlan into the vxlan fabric
 5). Create the NVE (Network Virtualization edge), this is the where the vxlan tunnel will terminate and is commonly refered to as the VTEP(VXLAN tunnel end point)
+
+
