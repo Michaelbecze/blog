@@ -4,7 +4,7 @@ VXLAN is becoming increasingly prevalent in campus networks as an overlay SDN op
 
 While VXLAN supports multiple control-plane options — such as multicast-based flooding, LISP, or even static VXLAN — MP-BGP EVPN has become the most common and scalable choice, especially in enterprise and campus designs.
 
-For this example, I’ll use **two Catalyst switches** connected by a routed link to demonstrate a **simple Layer 2 VXLAN stretch**. The goal here is not a full production design, but to clearly show the required building blocks and how they fit together.
+For this example, I’ll use two Catalyst switches connected by a routed link to demonstrate a simple Layer 2 VXLAN stretch. The goal here is not a full production design, but to clearly show the required building blocks and how they fit together.
 
 ---
 
