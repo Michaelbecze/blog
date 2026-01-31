@@ -28,12 +28,16 @@ This is a critical distinction from traditional iBGP designs. Since EVPN is not 
 - **Core-West:** `10.0.0.249`
 - **RR-1:** `10.0.0.13`
 
-All routers and Switches have full IP reachablity over EIGRP, above I have posted the Loopbacks of each device. Although no configuration will be done on Core-East and Core-West we still need to route through these routers. I have also added a router reflector that we will biuld EVPN sessions to, although this route reflector is not nessiary it is good to include so we can start to think about how we can quiickly scale EVPN VXLAN without have a full mesh.  
+All routers and switches have full IP reachability via EIGRP. The addresses listed above are loopback interfaces used for routing and control-plane communication.
+
+Although no configuration changes are made on Core-East or Core-West, traffic must still traverse these devices. They act purely as transport nodes.
+
+A route reflector (RR-1) is included for the EVPN control plane. While a route reflector is not strictly required in a small lab, it is important to include one to demonstrate how EVPN VXLAN can scale without requiring a full iBGP mesh.
 
 ---
 ## MP-BGP EVPN Configuration
 
-In this lab both edge routers will form a single EVPN session with the route reflector and what I would like to point out about this configuration is that both the edge routers can have identical bgp configurations. This is one only the mainy great benifits that come with Router Reflectors. 
+In this lab, both edge devices form a single EVPN session with the route reflector. One important benefit of using a route reflector is that the edge routers can have identical BGP configurations, simplifying deployment and scaling.
 
 Edge-1
 ```
@@ -146,6 +150,9 @@ show vni mappings
 edge-1#show nve vni
 Interface  VNI        Multicast-group  VNI state  Mode  VLAN  cfg vrf                      
 nve1       10000      N/A              Up         L2CP  10    CLI N/A                      
+```
+Show that Mac Address learning is working
+```
 edge-1#show l2route evpn mac
   EVI       ETag  Prod    Mac Address                                          Next Hop(s) Seq Number
 ----- ---------- ----- -------------- ---------------------------------------------------- ----------
@@ -153,7 +160,7 @@ edge-1#show l2route evpn mac
    10          0   BGP 5254.0081.339c                                   V:10000 10.0.0.246          0
 ```
 
-show EVPN table to verify mac adddress are being learned
+show EVPN table 
 ```
 edge-1#show bgp l2vpn evpn
 BGP table version is 29, local router ID is 10.0.0.245
@@ -184,7 +191,9 @@ Route Distinguisher: 10.0.0.245:10
  *>i  [3][10.0.0.245:10][0][32][10.0.0.246]/17
                       10.0.0.246               0    100      0 ?
 Route Distinguisher: 10.0.0.246:10
+
  *>i  [3][10.0.0.246:10][0][32][10.0.0.246]/17
                       10.0.0.246               0    100      0 ?
 ```
+This design demonstrates how VXLAN EVPN can be deployed incrementally in enterprise environments by treating the core as a pure transport network. By limiting VXLAN and EVPN configuration to the edge, we gain the benefits of Layer 2 extension and modern control-plane signaling without forcing disruptive changes to the existing routing infrastructure.
 
