@@ -136,7 +136,7 @@ interface nve1
 ```
 ### Verification
 
-show nve peers
+Verify NVE Peers
 ```
 edge-1# show nve peers
 'M' - MAC entry download flag  'A' - Adjacency download flag
@@ -145,7 +145,7 @@ edge-1# show nve peers
 Interface  VNI      Type Peer-IP          RMAC/Num_RTs   eVNI     state flags UP time
 nve1       10000    L2CP 10.0.0.246       3              10000      UP   N/A  01:41:53
 ```
-show vni mappings
+Show vni mappings
 ```
 edge-1#show nve vni
 Interface  VNI        Multicast-group  VNI state  Mode  VLAN  cfg vrf                      
@@ -160,7 +160,7 @@ edge-1#show l2route evpn mac
    10          0   BGP 5254.0081.339c                                   V:10000 10.0.0.246          0
 ```
 
-show EVPN table 
+Verify EVPN Routes
 ```
 edge-1#show bgp l2vpn evpn
 BGP table version is 29, local router ID is 10.0.0.245
