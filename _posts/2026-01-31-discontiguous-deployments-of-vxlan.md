@@ -97,6 +97,7 @@ Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State
 10.0.0.245      4        65000     113     120       20    0    0 01:34:01        2
 10.0.0.246      4        65000     116     125       20    0    0 01:33:44        3
 ```
+---
 
 ### VLANS and Vteps
 
