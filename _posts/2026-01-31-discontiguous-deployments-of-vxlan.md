@@ -15,7 +15,7 @@ At its core, EVPN is used to advertise MAC address and IP address mappings, allo
 
 Importantly, EVPN does not inject traditional routing information into the global routing table. Because of this, the underlay network does not need to understand anything about EVPN itself. As long as the loopback interfaces used by the VTEPs can reach one another at Layer 3, VXLAN encapsulated traffic can be exchanged successfully.
 
-This is a critical distinction from traditional iBGP designs. Since EVPN is not being used to exchange underlay routing information, we do not require a full iBGP mesh across the network. The core network remains completely unaware of the overlayit simply forwards IP packets between VTEP loopbacks.
+This is a critical distinction from traditional iBGP designs. Since EVPN is not being used to exchange underlay routing information, we do not require a full iBGP mesh across the network. The core network remains completely unaware of the overlay it simply forwards IP packets between VTEP loopbacks.
 
 ---
 ## Lab Topology 
