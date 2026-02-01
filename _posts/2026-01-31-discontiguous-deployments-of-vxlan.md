@@ -1,4 +1,4 @@
-## Discontiguous Deployments of vxlan over an IGP
+## Discontiguous Deployments of Vxlan over an IGP using Catalyst IOS-XE
 
 Traditionally, VXLAN has been associated with data center environments, where the entire network is built as an overlay—most commonly using a spine-and-leaf topology with BGP running in a full mesh. While this model works extremely well in the data center, it does not always translate cleanly into enterprise campus or WAN environments.
 
