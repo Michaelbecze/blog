@@ -136,7 +136,7 @@ interface nve1
 ```
 ### Verification
 
-Verify NVE Peers
+Confirms that the remote VTEP is reachable and that the VXLAN tunnel is established.
 ```
 edge-1# show nve peers
 'M' - MAC entry download flag  'A' - Adjacency download flag
@@ -145,7 +145,7 @@ edge-1# show nve peers
 Interface  VNI      Type Peer-IP          RMAC/Num_RTs   eVNI     state flags UP time
 nve1       10000    L2CP 10.0.0.246       3              10000      UP   N/A  01:41:53
 ```
-Show vni mappings
+Show vni to vlan mappings
 ```
 edge-1#show nve vni
 Interface  VNI        Multicast-group  VNI state  Mode  VLAN  cfg vrf                      
@@ -160,7 +160,7 @@ edge-1#show l2route evpn mac
    10          0   BGP 5254.0081.339c                                   V:10000 10.0.0.246          0
 ```
 
-Verify EVPN Routes
+Confirms that Type 2 (MAC/IP) and Type 3 (IMET) routes are being exchanged correctly, completing the EVPN control plane.
 ```
 edge-1#show bgp l2vpn evpn
 BGP table version is 29, local router ID is 10.0.0.245
