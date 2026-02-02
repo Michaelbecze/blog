@@ -11,13 +11,13 @@ This approach allows us to create a Layer 2 VXLAN stretch across a routed networ
 EVPN is used to advertise MAC adress to IP mapping, so we know behind what VTEP a MAC address is living, bceause it is not carrying routing information that will be inseted into the routing table we do not need to have a full mesh like we would do with iBGP. The Core Network does not need to understand the state of EVPN, as long as the loopbacks used for the VTEPS can reach each other EVPN will be able to work. AS EVPN is a address family of BGP this gets more complicated if you have to router over eBGP. For my example we wull stick with an IGP for our underlay. 
 
 ## Why This Works
+![Basic Lab set up]({{ site.baseurl }}/assets/vxlan-packet-walk.drawio.png)
+
 At its core, EVPN is used to advertise MAC address and IP address mappings, allowing VTEPs to learn where endpoints reside within the VXLAN fabric. These advertisements tell us which MAC address lives behind which VTEP, enabling efficient forwarding across the overlay.
 
 Importantly, EVPN does not inject traditional routing information into the global routing table. Because of this, the underlay network does not need to understand anything about EVPN itself. As long as the loopback interfaces used by the VTEPs can reach one another at Layer 3, VXLAN encapsulated traffic can be exchanged successfully.
 
 This is a critical distinction from traditional iBGP designs. Since EVPN is not being used to exchange underlay routing information, we do not require a full iBGP mesh across the network. The core network remains completely unaware of the overlay it simply forwards IP packets between VTEP loopbacks.
-
-![Basic Lab set up]({{ site.baseurl }}/assets/vxlan-packet-walk.drawio.png)
 
 The diagram above shows a basic edge-to-edge packet flow. The original Ethernet frame (inner MAC and IP headers) is encapsulated with a VXLAN header and an outer IP/UDP header, using the source and destination VTEP addresses to tunnel the traffic across the routed underlay.
 
