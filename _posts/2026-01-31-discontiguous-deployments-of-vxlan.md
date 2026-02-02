@@ -19,7 +19,7 @@ This is a critical distinction from traditional iBGP designs. Since EVPN is not 
 
 ![Basic Lab set up]({{ site.baseurl }}/assets/vxlan-packet-walk.png)
 
-Here is a baisc packet flow from Edge to Edge showing how the inner ip and mac headers are tunneled using a vlxan header and then an aditional IP header with the source and destinations of the VTEPS.
+The diagram above shows a basic edge-to-edge packet flow. The original Ethernet frame (inner MAC and IP headers) is encapsulated with a VXLAN header and an outer IP/UDP header, using the source and destination VTEP addresses to tunnel the traffic across the routed underlay.
 
 ---
 ## Lab Topology 
