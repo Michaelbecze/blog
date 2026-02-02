@@ -17,7 +17,7 @@ Importantly, EVPN does not inject traditional routing information into the globa
 
 This is a critical distinction from traditional iBGP designs. Since EVPN is not being used to exchange underlay routing information, we do not require a full iBGP mesh across the network. The core network remains completely unaware of the overlay it simply forwards IP packets between VTEP loopbacks.
 
-![Basic Lab set up]({{ site.baseurl }}/assets/vxlan-packet-walk.png)
+![Basic Lab set up]({{ site.baseurl }}/assets/vxlan-packet-walk.drawio.png)
 
 The diagram above shows a basic edge-to-edge packet flow. The original Ethernet frame (inner MAC and IP headers) is encapsulated with a VXLAN header and an outer IP/UDP header, using the source and destination VTEP addresses to tunnel the traffic across the routed underlay.
 
