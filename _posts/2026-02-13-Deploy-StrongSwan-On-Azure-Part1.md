@@ -1,12 +1,25 @@
 ## Deploy StrongSwan in Azure for Ipsec Vpn tunnels to On Prem
-StrongSwan is a great open source VPN tool that is installed directly on Linux. Here we will take a look at installing it in Azure as a way to connect Azure to an On Prem enviroment using a Cisco ios-xe router. For this we are going to do a policy baised VPN rather then a routed VPN as it is aeasier to get going with StrongSwan. First let take a look at what IPsec is and how it is used.
+StrongSwan is a powerful open-source IPsec VPN solution that runs directly on Linux. In this post, we will deploy it in Azure to connect an Azure virtual network to an on-premises environment using a Cisco IOS-XE router. For this lab, we will configure a policy-based VPN rather than a routed (VTI) VPN, as it is generally easier to get working initially with StrongSwan.
 
 IPsec is a group of network protocols that create a secure connection between two or more devices by authenticating and encrypting packets over Internet Protocol (IP) networks such as the Internet. To establish a Virtual Private Network (VPN) tunnel between devices, IPSec uses multiple protocols, including the following.
 
-  -  **Encapsulating Security Protocol (ESP):** Encrypts the IP header and payload for each data packet by adding a new header and trailer.
+  -  **Encapsulating Security Protocol (ESP):** Encrypts and optionally authenticates the IP payload. In tunnel mode, ESP encapsulates the entire original IP packet inside a new IP header.
   -  **Security Association (SA):** Negotiates encryption keys and algorithms between devices in a tunnel using protocols such as Internet Key Exchange (IKE), and the Internet Security Association and Key Management Protocol (ISAKMP)
-  -  **Internet Key Exchange (IKE)** IKE negotiates a security association (SA), which is an agreement between two peers engaging in an IPsec exchange, I like to thnk of this as the control plan for IPsec
+  -  **Internet Key Exchange (IKE)** IKE is responsible for negotiating and managing Security Associations. It establishes the control channel used to securely exchange keying material. I like to think of this as the control plane for IPsec.
 
+The Two-Phase Negotiation Process:
+**Phase 1: IKE SA (ISAKMP SA)** - The Control Channel
+  - The goal of Phase 1 is to Create a secure, authenticated management tunnel between the two peers.
+  - Choose encryption and integrity algorithms
+  - Select Diffie-Hellman group
+  - Define authentication methods (PSK or certificates)
+  - Establish a secure channel for Phase 2 negotiations
+
+**Phase 2: IPsec SA (ESP SA)** - The Data Channel
+  - The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
+  - Choose encryption and integrity algorithms for ESP
+  - We will also deine the traffic that is being encrypted with traffic selectors
+  - Establish one or more IPsec SAs for data transfer
 
 ## The Lab Topology
 
@@ -22,7 +35,7 @@ IPsec is a group of network protocols that create a secure connection between tw
 
 
 
-##Verify
+## Verify
 
 Ping test from the StrongSwan
 ```
