@@ -1,4 +1,4 @@
-## Deploy StrongSwan in Azure for Ipsec Vpn tunnels to On Prem
+## Deploy StrongSwan in Azure for IPSEC VPN tunnels to On Prem
 StrongSwan is a powerful open-source IPsec VPN solution that runs directly on Linux. In this post, we will deploy it in Azure to connect an Azure virtual network to an on-premises environment using a Cisco IOS-XE router. For this lab, we will configure a policy-based VPN rather than a routed (VTI) VPN, as it is generally easier to get working initially with StrongSwan.
 
 ## IPSEC
@@ -8,22 +8,22 @@ IPsec is a group of network protocols that create a secure connection between tw
   -  **Security Association (SA):** Negotiates encryption keys and algorithms between devices in a tunnel using protocols such as Internet Key Exchange (IKE), and the Internet Security Association and Key Management Protocol (ISAKMP)
   -  **Internet Key Exchange (IKE)** IKE is responsible for negotiating and managing Security Associations. It establishes the control channel used to securely exchange keying material. I like to think of this as the control plane for IPsec.
 
-## The Two-Phase Negotiation Process:
-**Phase 1: IKE SA (ISAKMP SA)** - The Control Channel
-The goal of Phase 1 is to Create a secure, authenticated management tunnel between the two peers.
-  - Choose encryption and integrity algorithms
-  - Select Diffie-Hellman group
-  - Define authentication methods (PSK or certificates)
-  - Establish a secure channel for Phase 2 negotiations
+  # The Two-Phase Negotiation Process:
+  **Phase 1: IKE SA (ISAKMP SA)** - The Control Channel
+  The goal of Phase 1 is to Create a secure, authenticated management tunnel between the two peers.
+    - Choose encryption and integrity algorithms
+    - Select Diffie-Hellman group
+    - Define authentication methods (PSK or certificates)
+    - Establish a secure channel for Phase 2 negotiations
+  
+  **Phase 2: IPsec SA (ESP SA)** - The Data Channel
+  The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
+    - Choose encryption and integrity algorithms for ESP
+    - We will also deine the traffic that is being encrypted with traffic selectors
+    - Establish one or more IPsec SAs for data transfer
 
-**Phase 2: IPsec SA (ESP SA)** - The Data Channel
-The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
-  - Choose encryption and integrity algorithms for ESP
-  - We will also deine the traffic that is being encrypted with traffic selectors
-  - Establish one or more IPsec SAs for data transfer
-
-## NAT Traversal (NAT-T) in IPsec
-We are going to have a router that is sitting behind a firewall so I breifly waneted to bring up NAT-T as ESP cannot traverse NAT without a little bit of help. Traditional IPsec uses Encapsulating Security Protocol (ESP), which is IP protocol 50. Unlike TCP or UDP, ESP does not use port numbers. What NAT-T does is encapsulates ESP inside UDP using port 4500. Now instead of the firewall or NAT device seeing the ESP packet it will see UDP prt 4500 and we can take advantage of the UDP ports fot NAT. 
+  # NAT Traversal (NAT-T) in IPsec
+  We are going to have a router that is sitting behind a firewall so I breifly waneted to bring up NAT-T as ESP cannot traverse NAT without a little bit of help. Traditional IPsec uses Encapsulating Security Protocol (ESP), which is IP protocol   50. Unlike TCP or UDP, ESP does not use port numbers. What NAT-T does is encapsulates ESP inside UDP using port 4500. Now instead of the firewall or NAT device seeing the ESP packet it will see UDP prt 4500 and we can take advantage of the      UDP ports fot NAT. 
 
 ## The Lab Topology
 ![Basic Lab set up]({{ site.baseurl }}/assets/Azure-StrongSwan-Topo.drawio.png)
