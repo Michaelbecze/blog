@@ -34,7 +34,7 @@ We are going to have a router that is sitting behind a firewall so I breifly wan
 - **Cisco Router:** Acts as IPsec initiator with private IP 192.168.0.29 sitting behind the Firewall
 - **On-Premises Network:** 192.168.200.0/24
 
-## Setting up StrongSwan in Azure
+## Setting up Ubuntu in Azure
 For this part you will need an azure account. Once that is set up launching a VM is very strait forward, but I will quickly walk through the steps. I am going to assume a little bit of Azure knowledge here.
   - Create a new Reasouse Group
   - Create a new Vnet in the reasource group, i used 10.250.0.0/16
@@ -43,9 +43,96 @@ For this part you will need an azure account. Once that is set up launching a VM
     - 10.250.2.0/24 = Internal
   - Create an Ubuntu VM, I used ubuntu 22.04.
       - Be sure to create a Public IP address
-      - NSG that allows ports 500 and 4500 for NAT-T
+      - NSG that allows ports 500 and 4500 for NAT-T and port 22 for SSH access
       - Create 2 nics one that is attached to the Public IP address and one that is part of out internal zone
- 
+      - I used a user name and password instead of a Certificat for loging in as this i just a demo
+
+After the Vm is launched you are ready to install StrongSwan. Lets SSH into the VM and get it set up.
+
+## Setting up StrongSwan
+After the Vm is launched you are ready to install StrongSwan. Lets SSH into the VM and get it set up.
+
+Update your VM
+```
+sudo apt update
+```
+Install strongSwan and all required packages.
+```
+sudo apt install strongswan strongswan-pki libcharon-extra-plugins libcharon-extauth-plugins libstrongswan-extra-plugins –y
+```
+Enable strongSwan to start at boot time.
+```
+sudo systemctl enable strongswan-starter.service
+```
+Start strongSwan.
+```
+sudo systemctl start strongswan-starter.service
+``` 
+
+Verify that the strongSwan daemon is up and running.
+```
+sudo systemctl status strongswan-starter.service
+```
+
+Lets configure our VPN parameters. By default StrongSwan stores the configuration in /etc/ipsec.conf so lets go edit that file using nano
+```
+sudo nano /etc/ipsec.conf
+```
+```
+config setup
+    charondebug="ike 1, knl 1, cfg 0"
+    uniqueids=no
+
+conn myvpn
+    # Connection type
+    type=tunnel
+    auto=start
+
+    # IKEv2 settings
+    keyexchange=ikev2
+
+    # Phase 1 (IKE) parameters matching Cisco proposal
+    ike=aes256-sha256-modp2048!
+
+    # Phase 2 (IPsec) parameters matching Cisco transform-set
+    esp=aes256-sha256!
+
+    # Authentication
+    authby=psk
+
+    left=%any
+    leftid=168.62.164.80
+    leftsubnet=10.250.1.0/24,10.250.2.0/24
+
+    right=64.147.204.233
+    rightid=192.168.0.29
+    rightsubnet=192.168.200.0/24
+    ikelifetime=8h
+    lifetime=1h
+    margintime=9m
+    rekeyfuzz=100%
+```
+- keyexchange=: Method of exchange to use in the IPsec connection, ike defaults to ikev2, ikev1 assigns IKEV1 to the connection.
+- left=: The local server's public IP address.
+- leftsubnet=: IP address range that you need connection to
+- leftid=: How the Azure VM will authenticate
+- right=: The Remote Server's public IP address. This will be our On Prem network
+- rightid=: How the remote On-Premises server authenticates. 
+- rightsubnet=: The Local On-Premises network behind the cisco router
+
+After this we will also need to create a file that has our preshared key in it. This is normally in /etc/ipsec.secrets so lets edit edit that file. be sure to replace "your-password with your PSK"
+```
+sudo nano /etc/ipsec.secrets
+```
+```
+%any %any : PSK "your-password"
+```
+
+Lets reload the configurationa and StronSwan is ready to go:
+```
+sudo ipsec reload
+sudo ipsec restart
+```
 
 ## Verify
 
