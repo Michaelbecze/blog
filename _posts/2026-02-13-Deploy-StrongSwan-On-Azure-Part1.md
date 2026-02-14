@@ -1,6 +1,7 @@
 ## Deploy StrongSwan in Azure for IPSEC VPN tunnels to On Prem
-StrongSwan is a powerful open-source IPsec VPN solution that runs directly on Linux. In this post, we will deploy it in Azure to connect an Azure virtual network to an on-premises environment using a Cisco IOS-XE router. For this lab, we will configure a policy-based VPN rather than a routed (VTI) VPN, as it is generally easier to get working initially with StrongSwan.
+StrongSwan is a powerful open-source IPsec VPN solution that runs directly on Linux. In this post, we will deploy it in Azure to connect an Azure virtual network to an on-premises environment using a Cisco IOS-XE router. For this lab, we will configure a policy-based VPN rather than a routed (VTI) VPN, as it is generally easier to get working initially with StrongSwan. 
 
+---
 ## IPSEC
 IPsec is a group of network protocols that create a secure connection between two or more devices by authenticating and encrypting packets over Internet Protocol (IP) networks such as the Internet. To establish a Virtual Private Network (VPN) tunnel between devices, IPSec uses multiple protocols, including the following.
 
@@ -25,6 +26,7 @@ The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
 ### NAT Traversal (NAT-T) in IPsec
 We are going to have a router that is sitting behind a firewall so I breifly waneted to bring up NAT-T as ESP cannot traverse NAT without a little bit of help. Traditional IPsec uses Encapsulating Security Protocol (ESP), which is IP protocol   50. Unlike TCP or UDP, ESP does not use port numbers. What NAT-T does is encapsulates ESP inside UDP using port 4500. Now instead of the firewall or NAT device seeing the ESP packet it will see UDP prt 4500 and we can take advantage of the      UDP ports fot NAT. 
 
+---
 ## The Lab Topology
 ![Basic Lab set up]({{ site.baseurl }}/assets/Azure-StrongSwan-Topo.drawio.png)
 
@@ -35,20 +37,25 @@ We are going to have a router that is sitting behind a firewall so I breifly wan
 - **On-Premises Network:** 192.168.200.0/24
 
 ## Setting up Ubuntu in Azure
-For this part you will need an azure account. Once that is set up launching a VM is very strait forward, but I will quickly walk through the steps. I am going to assume a little bit of Azure knowledge here.
-  - Create a new Reasouse Group
-  - Create a new Vnet in the reasource group, i used 10.250.0.0/16
-  - Create 2 subnets in the Vnet. One subnet will be treated an exernal zone and 1 will be an interanl zone
-    - 10.250.1.0/24 = External
-    - 10.250.2.0/24 = Internal
-  - Create an Ubuntu VM, I used ubuntu 22.04.
-      - Be sure to create a Public IP address
-      - NSG that allows ports 500 and 4500 for NAT-T and port 22 for SSH access
-      - Create 2 nics one that is attached to the Public IP address and one that is part of out internal zone
-      - I used a user name and password instead of a Certificat for loging in as this i just a demo
+For this part, you will need an Azure account. Once that is set up, launching a VM is straightforward. I will assume a basic level of Azure knowledge.
 
-After the Vm is launched you are ready to install StrongSwan. Lets SSH into the VM and get it set up.
+- Create a new **Resource Group**  
+- Create a new **VNet** in the resource group (I used 10.250.0.0/16)  
+- Create two subnets in the VNet:
+  - 10.250.1.0/24 = External  
+  - 10.250.2.0/24 = Internal  
+- Create an Ubuntu VM (I used Ubuntu 22.04)
+  - Create a Public IP address  
+  - Configure an NSG allowing:
+    - UDP 500  
+    - UDP 4500  
+    - TCP 22 (SSH)  
+  - Create two NICs:
+    - One attached to the Public IP  
+    - One attached to the internal subnet  
+  - For this demo, I used a username and password instead of certificate authentication  
 
+---
 ## Setting up StrongSwan
 After the Vm is launched you are ready to install StrongSwan. Lets SSH into the VM and get it set up.
 
@@ -128,13 +135,18 @@ sudo nano /etc/ipsec.secrets
 ```
 %any %any : PSK "MY-KEY"
 ```
+We need to enable IP Forwarding to allow the VM to act as a router and forward ip packets:
+```
+sudo sysctl -w net.ipv4.ip_forward=1 
+
+```
 
 Lets reload the configurationa and StronSwan is ready to go:
 ```
 sudo ipsec reload
 sudo ipsec restart
 ```
-
+---
 ## Cisco Configuration
 We are going to use Crypto Maps on a cisco router to terminate the VPN on our On Prem Enviroment connection the network 192.168.200.0/24 to 10.250.1.0/ and 10.250.2.0/24.
 
@@ -187,10 +199,9 @@ interface Ethernet0/1
  ip address 192.168.0.29 255.255.255.0
  crypto map map-2
 ```
-
+---
 ## Verify
-
-Thats everything, so lets verify that our tunnel is up and working by doing so pings and looking at some show commands. 
+Everything should now be operational. Let’s verify that the tunnel is up and working by performing ping tests and checking show commands.
 
 Ping test from the StrongSwan
 ```
