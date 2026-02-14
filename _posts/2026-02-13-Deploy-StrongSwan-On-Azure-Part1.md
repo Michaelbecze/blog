@@ -126,7 +126,7 @@ conn myvpn
 - leftid=: How the Azure VM will authenticate
 - right=: The Remote Server's public IP address. This will be our On Prem network
 - rightid=: How the remote On-Premises server authenticates. 
-- rightsubnet=: The Local On-Premises network behind the cisco router
+- rightsubnet=: The Local On-Premises network behind the Cisco router
 
 After this we will also need to create a file that has our preshared key in it. This is normally in /etc/ipsec.secrets so lets edit edit that file. be sure to replace "MY-KEY" with your own PSK.
 ```
@@ -148,7 +148,7 @@ sudo ipsec restart
 ```
 ---
 ## Cisco Configuration
-We are going to use Crypto Maps on a cisco router to terminate the VPN on our On Prem Enviroment connection the network 192.168.200.0/24 to 10.250.1.0/ and 10.250.2.0/24.
+We are going to use Crypto Maps on a Cisco router to terminate the VPN on our On Prem environment connection the network 192.168.200.0/24 to 10.250.1.0/ and 10.250.2.0/24.
 
 Create Phase 1 Encryption, Authentication, and DH and attach it to a policy. Lastly we will make the Ikvev2 Profile, be sure to add the public IP address of StrongSwan to the remote Identity. I have also added a local Identity since our router is behind a NAT device.
 ```
