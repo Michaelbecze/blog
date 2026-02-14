@@ -148,9 +148,9 @@ sudo ipsec restart
 ```
 ---
 ## Cisco Configuration
-We are going to use Crypto Maps on a Cisco router to terminate the VPN on our On Prem environment connection the network 192.168.200.0/24 to 10.250.1.0/ and 10.250.2.0/24.
+We are going to use Crypto Maps on a Cisco router to terminate the VPN on our On Prem environment. This will connect the networks 192.168.200.0/24 to 10.250.1.0/ and 10.250.2.0/24.
 
-Create Phase 1 Encryption, Authentication, and DH and attach it to a policy. Lastly we will make the Ikvev2 Profile, be sure to add the public IP address of StrongSwan to the remote Identity. I have also added a local Identity since our router is behind a NAT device.
+Create Phase 1 Encryption, Authentication, and DH proposal and attach it to a policy. Then we will make an IKEv2 profile, be sure to add the public IP address of StrongSwan to the remote Identity. I have also added a local Identity since our router is behind a NAT device.
 ```
 crypto ikev2 proposal prop-1 
  encryption aes-cbc-256
