@@ -53,7 +53,7 @@ For this part, you will need an Azure account. Once that is set up, launching a 
   - Create two NICs:
     - One attached to the Public IP  
     - One attached to the internal subnet  
-  - For this demo, I used a username and password instead of certificate authentication  
+  - For this demo, I used a username and password instead of certificate authentication to the VM over SSH 
 
 ---
 ## Setting up StrongSwan
