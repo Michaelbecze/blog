@@ -63,20 +63,20 @@ Update your VM
 ```
 sudo apt update
 ```
-Install strongSwan and all required packages.
+Install StrongSwan and all required packages.
 ```
 sudo apt install strongswan strongswan-pki libcharon-extra-plugins libcharon-extauth-plugins libstrongswan-extra-plugins –y
 ```
-Enable strongSwan to start at boot.
+Enable StrongSwan to start at boot.
 ```
 sudo systemctl enable strongswan-starter.service
 ```
-Start strongSwan.
+Start StrongSwan.
 ```
 sudo systemctl start strongswan-starter.service
 ``` 
 
-Verify that the strongSwan daemon is up and running.
+Verify that the StrongSwan daemon is up and running.
 ```
 sudo systemctl status strongswan-starter.service
 ```
@@ -150,7 +150,9 @@ sudo ipsec restart
 ## Cisco Configuration
 We are going to use Crypto Maps on a Cisco router to terminate the VPN on our On Prem environment. This will connect the networks 192.168.200.0/24 to 10.250.1.0/ and 10.250.2.0/24.
 
-Create Phase 1 Encryption, Authentication, and DH proposal and attach it to a policy. Then we will make an IKEv2 profile, be sure to add the public IP address of StrongSwan to the remote Identity. I have also added a local Identity since our router is behind a NAT device.
+Create the Phase 1 (IKE) proposal and define the required encryption algorithm, authentication method, and Diffie-Hellman (DH) group. Attach this proposal to an IKE policy.
+
+Next, create the IKEv2 profile. Set the remote identity to the public IP address of the StrongSwan peer. Because the Cisco router is behind a NAT device, you should also configure a local identity. The local and remote identities configured on the Cisco device must match the leftid and rightid values defined in the StrongSwan configuration. If these values do not match exactly, IKE Phase 1 negotiation will fail.
 ```
 crypto ikev2 proposal prop-1 
  encryption aes-cbc-256
