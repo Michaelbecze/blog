@@ -270,7 +270,7 @@ Tunnel-id Local                 Remote                fvrf/ivrf            Statu
 ```
 
 
-Phase 2 on the cisco router, here we want to look for encapslation by looking at the pkts encrypted and decrypted. Here we see a the 2 sperate tunnels used for data transmission
+Phase 2 on the cisco router, here we want to look for encapslation by looking at the pkts encrypted and decrypted. Here we see the 2 sperate tunnels used for data transmission are both up and working.
 ```
 R1#show crypto ipsec sa 
 ```
