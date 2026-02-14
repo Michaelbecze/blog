@@ -30,7 +30,7 @@ We are going to have a router that is sitting behind a firewall so I breifly wan
 ## The Lab Topology
 ![Basic Lab set up]({{ site.baseurl }}/assets/Azure-StrongSwan-Topo.drawio.png)
 
-- **Azure Virtual Network:** 10.250.0.0/20 address space with a 10.250.1.0/24 subnet
+- **Azure Virtual Network:** 10.250.0.0/20 address space with a 10.250.1.0/24 subnet and a 10.250.2.0/24 subnet
 - **StrongSwan VPN Server:** Ubuntu 22.04 VM in Azure with a Public IP address from Azure
 - **PF Sense Firewall:** Public IP address
 - **Cisco Router:** Acts as IPsec initiator with private IP 192.168.0.29 sitting behind the Firewall
