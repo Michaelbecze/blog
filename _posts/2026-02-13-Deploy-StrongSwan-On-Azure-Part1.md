@@ -35,8 +35,17 @@ We are going to have a router that is sitting behind a firewall so I breifly wan
 - **On-Premises Network:** 192.168.200.0/24
 
 ## Setting up StrongSwan in Azure
-
-
+For this part you will need an azure account. Once that is set up launching a VM is very strait forward, but I will quickly walk through the steps. I am going to assume a little bit of Azure knowledge here.
+  - Create a new Reasouse Group
+  - Create a new Vnet in the reasource group, i used 10.250.0.0/16
+  - Create 2 subnets in the Vnet. One subnet will be treated an exernal zone and 1 will be an interanl zone
+    - 10.250.1.0/24 = External
+    - 10.250.2.0/24 = Internal
+  - Create an Ubuntu VM, I used ubuntu 22.04.
+      - Be sure to create a Public IP address
+      - NSG that allows ports 500 and 4500 for NAT-T
+      - Create 2 nics one that is attached to the Public IP address and one that is part of out internal zone
+ 
 
 ## Verify
 
