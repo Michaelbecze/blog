@@ -22,8 +22,10 @@ The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
   - We will also deine the traffic that is being encrypted with traffic selectors
   - Establish one or more IPsec SAs for data transfer
 
-## The Lab Topology
+## NAT Traversal (NAT-T) in IPsec
+We are going to have a router that is sitting behind a firewall so I breifly waneted to bring up NAT-T as ESP cannot traverse NAT without a little bit of help. Traditional IPsec uses Encapsulating Security Protocol (ESP), which is IP protocol 50. Unlike TCP or UDP, ESP does not use port numbers. What NAT-T does is encapsulates ESP inside UDP using port 4500. Now instead of the firewall or NAT device seeing the ESP packet it will see UDP prt 4500 and we can take advantage of the UDP ports fot NAT. 
 
+## The Lab Topology
 ![Basic Lab set up]({{ site.baseurl }}/assets/Azure-StrongSwan-Topo.drawio.png)
 
 - **Azure Virtual Network:** 10.250.0.0/20 address space with a 10.250.1.0/24 subnet
