@@ -1,5 +1,12 @@
 ## Deploy StrongSwan in Azure for Ipsec Vpn tunnels to On Prem
-StrongSwan is a great open source VPN tool that is installed directly on Linux. Here we will take a look at installing it in Azure as a way to connect Azure to an On Prem enviroment using a cisco ios xe router. 
+StrongSwan is a great open source VPN tool that is installed directly on Linux. Here we will take a look at installing it in Azure as a way to connect Azure to an On Prem enviroment using a Cisco ios-xe router. For this we are going to do a policy baised VPN rather then a routed VPN as it is aeasier to get going with StrongSwan. First let take a look at what IPsec is and how it is used.
+
+IPsec is a group of network protocols that create a secure connection between two or more devices by authenticating and encrypting packets over Internet Protocol (IP) networks such as the Internet. To establish a Virtual Private Network (VPN) tunnel between devices, IPSec uses multiple protocols, including the following.
+
+  -  **Encapsulating Security Protocol (ESP):** Encrypts the IP header and payload for each data packet by adding a new header and trailer.
+  -  **Security Association (SA):** Negotiates encryption keys and algorithms between devices in a tunnel using protocols such as Internet Key Exchange (IKE), and the Internet Security Association and Key Management Protocol (ISAKMP)
+  -  **Internet Key Exchange (IKE)** IKE negotiates a security association (SA), which is an agreement between two peers engaging in an IPsec exchange, I like to thnk of this as the control plan for IPsec
+
 
 ## The Lab Topology
 
