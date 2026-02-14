@@ -10,14 +10,14 @@ IPsec is a group of network protocols that create a secure connection between tw
 
 ## The Two-Phase Negotiation Process:
 **Phase 1: IKE SA (ISAKMP SA)** - The Control Channel
-  - The goal of Phase 1 is to Create a secure, authenticated management tunnel between the two peers.
+The goal of Phase 1 is to Create a secure, authenticated management tunnel between the two peers.
   - Choose encryption and integrity algorithms
   - Select Diffie-Hellman group
   - Define authentication methods (PSK or certificates)
   - Establish a secure channel for Phase 2 negotiations
 
 **Phase 2: IPsec SA (ESP SA)** - The Data Channel
-  - The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
+The goal of phase 2 is to Negotiate how actual user traffic will be encrypted.
   - Choose encryption and integrity algorithms for ESP
   - We will also deine the traffic that is being encrypted with traffic selectors
   - Establish one or more IPsec SAs for data transfer
