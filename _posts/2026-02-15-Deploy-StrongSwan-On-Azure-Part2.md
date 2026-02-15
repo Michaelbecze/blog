@@ -34,26 +34,26 @@ terraform version
 # Basic Command
 Before we start looking at the script I want to go over the 4 commands that are used the most and their fucntion. We will use the following workflow to deploy and manage the lab environment.
 
-### Initialize
+#### Initialize
 ```bash
 terraform init
 ```
 Initializes the working directory. This downloads the required providers (such as AzureRM) and prepares Terraform to manage the configuration. You only need to run this once per directory, or whenever provider versions change.
 
-### Preview Changes
+#### Preview Changes
 ```bash
 terraform plan
 ```
 Generates an execution plan showing what Terraform will create, modify, or delete. This allows you to review changes before applying them.
 
-### Apply Changes
+#### Apply Changes
 ```bash
 terraform apply
 ```
 
 Creates or updates the infrastructure based on the configuration files. Terraform will prompt for confirmation before making changes.
 
-### Destroy Resources
+#### Destroy Resources
 ```bash
 terraform destroy
 ```
@@ -62,18 +62,16 @@ Removes all resources defined in the configuration. This is especially useful fo
 ---
 # Loggin into Azure
 
-Before running Terraform, you must authenticate to Azure so the AzureRM provider can create and manage resources.
+Before running Terraform, you must authenticate to Azure so the AzureRM provider can create and manage resources. The easiest method for lab environments is using the Azure CLI.
 
-The easiest method for lab environments is using the Azure CLI.
-
-### Install Azure CLI (if needed)
+#### Install Azure CLI (if needed)
 Follow the official installation instructions for your OS: https://learn.microsoft.com/cli/azure/install-azure-cli
 
 Verify installation:
 ```
 az version
 ```
-### Log in to Azure
+#### Log in to Azure
 Simply run this command and it will promt you for your azure credentials that you will login with
 ```
 az login
