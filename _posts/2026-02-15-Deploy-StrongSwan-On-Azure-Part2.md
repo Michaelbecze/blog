@@ -15,6 +15,7 @@ Instead of manually clicking through the Azure portal, we will describe:
 - Virtual Machines  
 
 Terraform reads the configuration, builds a dependency graph, and deploys everything in the correct order.
+
 ---
 
 # Installing Terraform
