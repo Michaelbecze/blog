@@ -78,7 +78,7 @@ az login
 ```
 
 # The Terrifor Script
-First thing that we need to do is create a fiel called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
+First thing that we need to do is create a file called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
 
 ### 1. Terraform and Provider Configuration
 ```hcl
