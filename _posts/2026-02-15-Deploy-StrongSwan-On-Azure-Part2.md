@@ -313,7 +313,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 **What this does:**
 - **VM size**: Standard_B2s (2 vCPU, 4GB RAM) - burstable, cost-effective
 - **OS image**: Ubuntu 22.04 LTS from Canonical
-- - **authentication**: Choose a the admin/password login
+- **authentication**: Choose a the admin/password login
 
 
 
