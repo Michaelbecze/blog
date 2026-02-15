@@ -1,13 +1,12 @@
 # Deploying the StrongSwan Lab with Terraform
 
-In Part 1, we manually configured StrongSwan inside Azure. For this lab, I used **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**.
+In Part 1, we manually configured StrongSwan inside Azure. For this lab, I am going yo use **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**. For now we are just going tp build out the Azure side of the Lab but with the versatility of terriform we can easily add the Cisco routers to the config. 
 
 ## What Is Terraform?
 
 Terraform is an open-source Infrastructure as Code tool created by HashiCorp. It allows you to define infrastructure in declarative configuration files and then provision it automatically.
 
-Instead of manually clicking through the Azure portal, you describe:
-
+Instead of manually clicking through the Azure portal, we will describe:
 - Resource Groups  
 - Virtual Networks  
 - Subnets  
@@ -17,52 +16,21 @@ Instead of manually clicking through the Azure portal, you describe:
 
 Terraform reads the configuration, builds a dependency graph, and deploys everything in the correct order.
 
-### Benefits
-
-- Repeatable deployments  
-- Version-controlled infrastructure  
-- Easy teardown (`terraform destroy`)  
-- Fast lab builds  
-
 ---
 
 # Installing Terraform
 
-## Windows (PowerShell)
-
-```powershell
-winget install HashiCorp.Terraform
-```
-
-## macOS (Homebrew)
-
+I am using an Ubuntu Machine to run Terriform but it is supported on Mac and Windows as well. Here is the install for Ubuntu Linux. 
 ```bash
-brew tap hashicorp/tap
-brew install hashicorp/tap/terraform
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -  
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"  
+sudo apt-get  update && sudo apt-get install terraform 
 ```
-
-## Linux (Ubuntu)
-
-```bash
-sudo apt update && sudo apt install -y gnupg software-properties-common
-wget -O- https://apt.releases.hashicorp.com/gpg | \
-gpg --dearmor | \
-sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-sudo tee /etc/apt/sources.list.d/hashicorp.list
-
-sudo apt update
-sudo apt install terraform
-```
-
 Verify installation:
 
 ```bash
 terraform version
 ```
-
 ---
 
 # How This Script Works
