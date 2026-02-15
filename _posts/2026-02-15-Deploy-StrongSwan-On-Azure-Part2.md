@@ -132,8 +132,8 @@ variable "admin_password" {
 - Defines input variables with default values
 - Makes the configuration reusable - change the defaults or pass different values at runtime
 - `default` values mean you don't have to specify them when running `terraform apply`
+- Defines a password that we will later use to login to the VM
 
-**Best practice:** Variables make your code DRY (Don't Repeat Yourself) and easier to customize for different environments.
 
 #### 3. Resource Group - The Container
 ```hcl
@@ -313,6 +313,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 **What this does:**
 - **VM size**: Standard_B2s (2 vCPU, 4GB RAM) - burstable, cost-effective
 - **OS image**: Ubuntu 22.04 LTS from Canonical
+- - **authentication**: Choose a the admin/password login
 
 
 
