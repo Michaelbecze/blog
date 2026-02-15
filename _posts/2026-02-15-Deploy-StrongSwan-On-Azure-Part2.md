@@ -59,6 +59,25 @@ terraform destroy
 Removes all resources defined in the configuration. This is especially useful for lab environments, allowing you to tear everything down cleanly when finished.
 
 ---
+# Loggin into Azure
+
+Before running Terraform, you must authenticate to Azure so the AzureRM provider can create and manage resources.
+
+The easiest method for lab environments is using the Azure CLI.
+
+### Install Azure CLI (if needed)
+Follow the official installation instructions for your OS: https://learn.microsoft.com/cli/azure/install-azure-cli
+
+Verify installation:
+```
+az version
+```
+### Log in to Azure
+Simply run this command and it will promt you for your azure credentials that you will login with
+```
+az login
+```
+
 # How This Script Works
 
 Let’s walk through what this configuration is doing.
