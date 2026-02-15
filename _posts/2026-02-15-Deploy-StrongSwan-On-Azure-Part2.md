@@ -79,11 +79,10 @@ Simply run this command and it will promt you for your azure credentials that yo
 az login
 ```
 
-# How This Script Works
+# The Terrifor Script
 First thing that we need to do is create a fiel called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
 
-## 1. Terraform Block & Azure Provider
-
+### 1. Terraform and Provider Configuration
 ```hcl
 terraform {
   required_providers {
@@ -93,189 +92,243 @@ terraform {
     }
   }
 }
-```
 
-This tells Terraform:
-
-- We are using the AzureRM provider  
-- Use version 3.x  
-
-```hcl
 provider "azurerm" {
   features {}
 }
 ```
 
-This initializes the Azure provider so Terraform can authenticate and deploy resources into Azure.
+**What this does:**
+- **`terraform` block**: Declares which providers we need. Think of providers as plugins that let Terraform talk to different cloud platforms.
+- **`required_providers`**: Specifies we need the Azure Resource Manager provider (azurerm) version 3.x
+- **`provider "azurerm"`**: Configures the Azure provider. The empty `features {}` block is required by the Azure provider.
 
----
-## 2. Variables
+**Authentication:** Terraform uses environment variables (`ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`) to authenticate with Azure. These should be set before running Terraform commands.
 
-You defined reusable variables for:
-
-- Resource group name  
-- Location (`eastus`)  
-- VM name  
-- Admin username  
-- Admin password (marked as `sensitive`)  
-
-Marking the password as sensitive prevents Terraform from displaying it in CLI output.
-
----
-## 3. Resource Group
-
+### 2. Variables - Making Configuration Flexible
 ```hcl
-resource "azurerm_resource_group" "main"
+variable "resource_group_name" {
+  default = "strongswan-rg"
+}
+
+variable "location" {
+  default = "eastus"
+}
+
+variable "vm_name" {
+  default = "strongswan-vm"
+}
+
+variable "admin_username" {
+  default = "azureuser"
+}
+
+variable "ssh_public_key_path" {
+  default = "~/.ssh/id_rsa.pub"
+}
 ```
 
-Creates the logical container for all Azure resources.
+**What this does:**
+- Defines input variables with default values
+- Makes the configuration reusable - change the defaults or pass different values at runtime
+- `default` values mean you don't have to specify them when running `terraform apply`
 
-All other resources reference this group.
+**Best practice:** Variables make your code DRY (Don't Repeat Yourself) and easier to customize for different environments.
 
----
-## 4. Virtual Network & Subnets
-
+### 3. Resource Group - The Container
 ```hcl
-resource "azurerm_virtual_network" "main"
+resource "azurerm_resource_group" "main" {
+  name     = var.resource_group_name
+  location = var.location
+}
 ```
 
-Creates a VNet with:
+**What this does:**
+- Creates an Azure Resource Group - a logical container for related resources
+- Uses the variables we defined above (notice `var.resource_group_name`)
 
-```
-10.250.0.0/20
-```
+**Why it matters:** Resource groups let you manage lifecycle, permissions, and billing for related resources as a unit.
 
-Then two subnets:
-
-- `10.250.1.0/24` → Outside subnet  
-- `10.250.2.0/24` → Server subnet  
-
-This mirrors the StrongSwan lab design:
-
-```
-[Internet]
-     |
-Outside NIC (10.250.1.0/24)
-     |
-StrongSwan VM
-     |
-Server NIC (10.250.2.0/24)
-```
-
----
-## 5. Public IP
-
+### 4. Virtual Network and Subnet
 ```hcl
-resource "azurerm_public_ip" "main"
+resource "azurerm_virtual_network" "main" {
+  name                = "${var.vm_name}-vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+}
+
+resource "azurerm_subnet" "main" {
+  name                 = "${var.vm_name}-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
 ```
 
-- Static allocation  
-- Standard SKU  
+**What this does:**
+- **VNet**: Creates a virtual network with a 10.0.0.0/16 address space (65,536 addresses)
+- **Subnet**: Carves out a 10.0.1.0/24 subnet (256 addresses) within that VNet
+- **String interpolation**: `"${var.vm_name}-vnet"` creates dynamic names like "strongswan-vm-vnet"
 
-This becomes the public-facing IP used by the remote IPsec peer.
+**Key Terraform concept - Resource References:**
+- `azurerm_resource_group.main.location` references the location from the resource group we created
+- `azurerm_virtual_network.main.name` references the VNet's name
+- Terraform automatically understands dependencies: it will create the VNet before the subnet, and the resource group before both
 
----
-## 6. Network Security Group (NSG)
-
-You created inbound rules for:
-
-| Rule | Port | Purpose |
-|------|------|----------|
-| SSH | TCP 22 | Management |
-| IPsec-IKE | UDP 500 | IKE Phase 1 |
-| IPsec-NAT-T | UDP 4500 | NAT Traversal |
-
-UDP 500 and 4500 are required for StrongSwan to negotiate IPsec tunnels behind NAT.
-
----
-## 7. Network Interfaces
-
-You created **two NICs**.
-
-### Outside NIC
-
-- Attached to outside subnet  
-- Has public IP  
-- IP forwarding enabled  
-
-### Server NIC
-
-- Attached to internal subnet  
-- IP forwarding enabled  
-
+### 5. Public IP Address
 ```hcl
-ip_forwarding_enabled = true
+resource "azurerm_public_ip" "main" {
+  name                = "${var.vm_name}-public-ip"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
 ```
 
-This setting is critical.
+**What this does:**
+- Creates a static public IP address
+- **Static vs Dynamic**: Static means the IP won't change even if the VM is stopped/started
+- **Standard SKU**: Required for zone-redundant deployments and certain load balancer configurations
 
-Without enabling IP forwarding at the Azure NIC level, the VM cannot pass traffic between subnets — even if Linux IP forwarding is enabled inside the OS.
+**Important detail:** This public IP will be automatically injected into the StrongSwan configuration later!
 
----
-## 8. NSG Associations
-
-You explicitly associate the NSG with both NICs.
-
-This ensures:
-
-- SSH works  
-- IPsec ports are open  
-- Traffic is controlled at the interface level  
-
----
-## 9. Linux Virtual Machine
-
+### 6. Network Security Group - The Firewall Rules
 ```hcl
-resource "azurerm_linux_virtual_machine" "main"
+resource "azurerm_network_security_group" "main" {
+  name                = "${var.vm_name}-nsg"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "IPSec-IKE"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Udp"
+    source_port_range          = "*"
+    destination_port_range     = "500"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "IPSec-NAT-T"
+    priority                   = 1003
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Udp"
+    source_port_range          = "*"
+    destination_port_range     = "4500"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
 ```
-Key configuration details:
 
-- VM size: `Standard_B2s`  
-- Ubuntu 22.04 LTS (Jammy)  
-- Password authentication enabled  
-- Two NICs attached  
+**What this does:**
+- Creates firewall rules for the network
+- **SSH (port 22)**: For remote management
+- **UDP 500**: IKE (Internet Key Exchange) - IPsec negotiation
+- **UDP 4500**: NAT-T (NAT Traversal) - IPsec through NAT devices
 
-Important detail:
+**Security note:** In production, restrict `source_address_prefix` to specific IP ranges instead of "*" (anywhere).
 
+### 7. Network Interface - Connecting the VM to the Network
 ```hcl
-network_interface_ids = [
-  azurerm_network_interface.outside.id,
-  azurerm_network_interface.server.id,
-]
-```
-The first NIC listed becomes the primary interface. This affects default routing and outbound traffic behavior.
+resource "azurerm_network_interface" "main" {
+  name                = "${var.vm_name}-nic"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
 
-# Deploying the Lab
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.main.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.main.id
+  }
+}
 
-Once the file is saved as `main.tf`:
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-To destroy the lab:
-
-```bash
-terraform destroy
+resource "azurerm_network_interface_security_group_association" "main" {
+  network_interface_id      = azurerm_network_interface.main.id
+  network_security_group_id = azurerm_network_security_group.main.id
+}
 ```
 
-This is the real power of Terraform — the entire StrongSwan lab can be built and torn down in minutes.
+**What this does:**
+- Creates a virtual NIC for the VM
+- Attaches it to the subnet
+- Associates the public IP address
+- Applies the security group rules
 
----
+**Key point:** The NIC is the "glue" that connects the VM to the network infrastructure.
 
-# Why This Matters
+### 8. The Virtual Machine
+```hcl
+resource "azurerm_linux_virtual_machine" "main" {
+  name                = var.vm_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  size                = "Standard_B2s"
+  admin_username      = var.admin_username
 
-By combining:
+  network_interface_ids = [
+    azurerm_network_interface.main.id,
+  ]
 
-- Terraform for infrastructure  
-- StrongSwan for VPN  
-- Azure networking  
-- NAT-T and IP forwarding  
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.ssh_public_key_path)
+  }
 
-You now have a fully reproducible hybrid connectivity lab that can be rebuilt anytime.
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
 
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
+    public_ip = azurerm_public_ip.main.ip_address
+  }))
+}
+```
+
+**What this does:**
+- **VM size**: Standard_B2s (2 vCPU, 4GB RAM) - burstable, cost-effective
+- **Authentication**: Uses SSH key (more secure than passwords)
+- **`file()` function**: Reads your SSH public key from disk
+- **OS image**: Ubuntu 22.04 LTS from Canonical
+- **`custom_data`**: This is the magic! It runs cloud-init during first boot
+
+**The Critical Part - custom_data:**
+```hcl
+custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
+  public_ip = azurerm_public_ip.main.ip_address
+}))
+```
+
+- **`templatefile()`**: Reads the cloud-init.yaml file and replaces variables
+- **`public_ip = azurerm_public_ip.main.ip_address`**: Passes the public IP to the template
+- **`base64encode()`**: Azure requires custom_data to be base64 encoded
 
 
 
