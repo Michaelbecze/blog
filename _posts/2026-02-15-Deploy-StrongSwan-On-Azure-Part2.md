@@ -1,6 +1,6 @@
 # Deploying the StrongSwan Lab with Terraform
 
-In Part 1, we manually configured StrongSwan inside Azure. For this lab, I am going yo use **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**. For now we are just going tp build out the Azure side of the Lab but with the versatility of terriform we can easily add the Cisco routers to the config. 
+In Part 1, we manually configured StrongSwan inside Azure. For this lab, I am going yo use **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**. For now we are just going tp build out the Azure side of the Lab but with the versatility of terriform we can easily add the Cisco routers to the config. By using terriform I am able to quickly and easily spin up labs in Azure and then take them down with nothing left behind. If you are learning Azure this is great way to deploy some complex Labs without have to endless click through menus. 
 
 ## What Is Terraform?
 
@@ -15,7 +15,6 @@ Instead of manually clicking through the Azure portal, we will describe:
 - Virtual Machines  
 
 Terraform reads the configuration, builds a dependency graph, and deploys everything in the correct order.
-
 ---
 
 # Installing Terraform
@@ -31,13 +30,38 @@ Verify installation:
 ```bash
 terraform version
 ```
----
+# Basic Command
+Before we start looking at the script I want to go over the 4 commands that are used the most and their fucntion. We will use the following workflow to deploy and manage the lab environment.
 
+### Initialize
+```bash
+terraform init
+```
+Initializes the working directory. This downloads the required providers (such as AzureRM) and prepares Terraform to manage the configuration. You only need to run this once per directory, or whenever provider versions change.
+
+### Preview Changes
+```bash
+terraform plan
+```
+Generates an execution plan showing what Terraform will create, modify, or delete. This allows you to review changes before applying them.
+
+### Apply Changes
+```bash
+terraform apply
+```
+
+Creates or updates the infrastructure based on the configuration files. Terraform will prompt for confirmation before making changes.
+
+### Destroy Resources
+```bash
+terraform destroy
+```
+Removes all resources defined in the configuration. This is especially useful for lab environments, allowing you to tear everything down cleanly when finished.
+
+---
 # How This Script Works
 
 Let’s walk through what this configuration is doing.
-
----
 
 ## 1. Terraform Block & Azure Provider
 
