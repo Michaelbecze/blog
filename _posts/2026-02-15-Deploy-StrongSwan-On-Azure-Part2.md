@@ -80,7 +80,7 @@ az login
 # The Terrifor Script
 First thing that we need to do is create a file called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
 
-### 1. Terraform and Provider Configuration
+#### 1. Terraform and Provider Configuration
 ```hcl
 terraform {
   required_providers {
@@ -103,7 +103,7 @@ provider "azurerm" {
 
 **Authentication:** Terraform uses environment variables (`ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`) to authenticate with Azure. These should be set before running Terraform commands.
 
-### 2. Variables - Making Configuration Flexible
+#### 2. Variables - Making Configuration Flexible
 ```hcl
 variable "resource_group_name" {
   default = "strongswan-rg"
@@ -133,7 +133,7 @@ variable "ssh_public_key_path" {
 
 **Best practice:** Variables make your code DRY (Don't Repeat Yourself) and easier to customize for different environments.
 
-### 3. Resource Group - The Container
+#### 3. Resource Group - The Container
 ```hcl
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
@@ -147,7 +147,7 @@ resource "azurerm_resource_group" "main" {
 
 **Why it matters:** Resource groups let you manage lifecycle, permissions, and billing for related resources as a unit.
 
-### 4. Virtual Network and Subnet
+#### 4. Virtual Network and Subnet
 ```hcl
 resource "azurerm_virtual_network" "main" {
   name                = "${var.vm_name}-vnet"
@@ -174,7 +174,7 @@ resource "azurerm_subnet" "main" {
 - `azurerm_virtual_network.main.name` references the VNet's name
 - Terraform automatically understands dependencies: it will create the VNet before the subnet, and the resource group before both
 
-### 5. Public IP Address
+#### 5. Public IP Address
 ```hcl
 resource "azurerm_public_ip" "main" {
   name                = "${var.vm_name}-public-ip"
@@ -192,7 +192,7 @@ resource "azurerm_public_ip" "main" {
 
 **Important detail:** This public IP will be automatically injected into the StrongSwan configuration later!
 
-### 6. Network Security Group - The Firewall Rules
+#### 6. Network Security Group - The Firewall Rules
 ```hcl
 resource "azurerm_network_security_group" "main" {
   name                = "${var.vm_name}-nsg"
@@ -245,7 +245,7 @@ resource "azurerm_network_security_group" "main" {
 
 **Security note:** In production, restrict `source_address_prefix` to specific IP ranges instead of "*" (anywhere).
 
-### 7. Network Interface - Connecting the VM to the Network
+#### 7. Network Interface - Connecting the VM to the Network
 ```hcl
 resource "azurerm_network_interface" "main" {
   name                = "${var.vm_name}-nic"
@@ -274,7 +274,7 @@ resource "azurerm_network_interface_security_group_association" "main" {
 
 **Key point:** The NIC is the "glue" that connects the VM to the network infrastructure.
 
-### 8. The Virtual Machine
+#### 8. The Virtual Machine
 ```hcl
 resource "azurerm_linux_virtual_machine" "main" {
   name                = var.vm_name
