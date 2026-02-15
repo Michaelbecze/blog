@@ -80,8 +80,8 @@ az login
 ```
 
 # How This Script Works
+First thing that we need to do is create a fiel called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
 
-Let’s walk through what this configuration is doing.
 ## 1. Terraform Block & Azure Provider
 
 ```hcl
