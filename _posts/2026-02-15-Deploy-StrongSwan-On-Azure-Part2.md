@@ -303,30 +303,16 @@ resource "azurerm_linux_virtual_machine" "main" {
     sku       = "22_04-lts-gen2"
     version   = "latest"
   }
-
-  custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
-    public_ip = azurerm_public_ip.main.ip_address
-  }))
 }
 ```
 
 **What this does:**
 - **VM size**: Standard_B2s (2 vCPU, 4GB RAM) - burstable, cost-effective
-- **Authentication**: Uses SSH key (more secure than passwords)
-- **`file()` function**: Reads your SSH public key from disk
 - **OS image**: Ubuntu 22.04 LTS from Canonical
-- **`custom_data`**: This is the magic! It runs cloud-init during first boot
 
-**The Critical Part - custom_data:**
-```hcl
-custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
-  public_ip = azurerm_public_ip.main.ip_address
-}))
-```
 
-- **`templatefile()`**: Reads the cloud-init.yaml file and replaces variables
-- **`public_ip = azurerm_public_ip.main.ip_address`**: Passes the public IP to the template
-- **`base64encode()`**: Azure requires custom_data to be base64 encoded
+
+
 
 
 
