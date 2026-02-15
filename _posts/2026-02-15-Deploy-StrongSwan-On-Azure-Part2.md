@@ -62,7 +62,6 @@ Removes all resources defined in the configuration. This is especially useful fo
 # How This Script Works
 
 Let’s walk through what this configuration is doing.
-
 ## 1. Terraform Block & Azure Provider
 
 ```hcl
@@ -90,7 +89,6 @@ provider "azurerm" {
 This initializes the Azure provider so Terraform can authenticate and deploy resources into Azure.
 
 ---
-
 ## 2. Variables
 
 You defined reusable variables for:
@@ -104,7 +102,6 @@ You defined reusable variables for:
 Marking the password as sensitive prevents Terraform from displaying it in CLI output.
 
 ---
-
 ## 3. Resource Group
 
 ```hcl
@@ -116,7 +113,6 @@ Creates the logical container for all Azure resources.
 All other resources reference this group.
 
 ---
-
 ## 4. Virtual Network & Subnets
 
 ```hcl
@@ -147,7 +143,6 @@ Server NIC (10.250.2.0/24)
 ```
 
 ---
-
 ## 5. Public IP
 
 ```hcl
@@ -160,7 +155,6 @@ resource "azurerm_public_ip" "main"
 This becomes the public-facing IP used by the remote IPsec peer.
 
 ---
-
 ## 6. Network Security Group (NSG)
 
 You created inbound rules for:
@@ -174,7 +168,6 @@ You created inbound rules for:
 UDP 500 and 4500 are required for StrongSwan to negotiate IPsec tunnels behind NAT.
 
 ---
-
 ## 7. Network Interfaces
 
 You created **two NICs**.
@@ -199,7 +192,6 @@ This setting is critical.
 Without enabling IP forwarding at the Azure NIC level, the VM cannot pass traffic between subnets — even if Linux IP forwarding is enabled inside the OS.
 
 ---
-
 ## 8. NSG Associations
 
 You explicitly associate the NSG with both NICs.
@@ -211,13 +203,11 @@ This ensures:
 - Traffic is controlled at the interface level  
 
 ---
-
 ## 9. Linux Virtual Machine
 
 ```hcl
 resource "azurerm_linux_virtual_machine" "main"
 ```
-
 Key configuration details:
 
 - VM size: `Standard_B2s`  
@@ -233,31 +223,7 @@ network_interface_ids = [
   azurerm_network_interface.server.id,
 ]
 ```
-
 The first NIC listed becomes the primary interface. This affects default routing and outbound traffic behavior.
-
----
-
-## 10. Cloud-Init
-
-```hcl
-custom_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
-  public_ip = azurerm_public_ip.main.ip_address
-}))
-```
-
-This passes a cloud-init configuration file to the VM during provisioning.
-
-Cloud-init allows you to:
-
-- Automatically install StrongSwan  
-- Configure packages  
-- Pre-stage configuration  
-- Inject variables like the public IP  
-
-This removes the need for manual post-deployment configuration.
-
----
 
 # Deploying the Lab
 
