@@ -60,23 +60,6 @@ terraform destroy
 Removes all resources defined in the configuration. This is especially useful for lab environments, allowing you to tear everything down cleanly when finished.
 
 ---
-# Loggin into Azure
-
-Before running Terraform, you must authenticate to Azure so the AzureRM provider can create and manage resources. The easiest method for lab environments is using the Azure CLI.
-
-#### Install Azure CLI (if needed)
-Follow the official installation instructions for your OS: https://learn.microsoft.com/cli/azure/install-azure-cli
-
-Verify installation:
-```
-az version
-```
-#### Log in to Azure
-Simply run this command and it will promt you for your azure credentials that you will login with
-```
-az login
-```
-
 ## The Terriform Script
 First thing that we need to do is create a file called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
 
@@ -101,7 +84,7 @@ provider "azurerm" {
 - **`required_providers`**: Specifies we need the Azure Resource Manager provider (azurerm) version 3.x
 - **`provider "azurerm"`**: Configures the Azure provider. The empty `features {}` block is required by the Azure provider.
 
-**Authentication:** Terraform uses environment variables (`ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`) to authenticate with Azure. These should be set before running Terraform commands.
+**Authentication:** Terraform uses environment variables (`ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`) to authenticate with Azure. These should be set before running Terraform commands. I store this varibles in a file called "set-azure-creds.sh"
 
 #### 2. Variables - Making Configuration Flexible
 ```hcl
