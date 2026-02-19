@@ -1,4 +1,4 @@
-# Deploying the StrongSwan Lab with Terraform
+## Deploying the StrongSwan Lab with Terraform
 
 In Part 1, we manually configured StrongSwan inside Azure. For this lab, I am going yo use **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**. For now we are just going to build out the Azure side of the Lab but with the versatility of terriform we can easily add the Cisco routers to the config. By using terriform we are able to quickly and easily spin up labs in Azure and then take them down with nothing left behind. If you are learning Azure this is great way to deploy some complex Labs without have to endless click through menus. 
 
@@ -18,7 +18,7 @@ Terraform reads the configuration, builds a dependency graph, and deploys everyt
 
 ---
 
-# Installing Terraform
+## Installing Terraform
 
 I am using an Ubuntu Machine to run Terriform but it is supported on Mac and Windows as well. Here is the install for Ubuntu Linux. 
 ```bash
@@ -77,7 +77,7 @@ Simply run this command and it will promt you for your azure credentials that yo
 az login
 ```
 
-# The Terrifor Script
+## The Terriform Script
 First thing that we need to do is create a file called ```main.tf``` this is where the terriform configutaion is stored and the file that we will be editing.
 
 #### 1. Terraform and Provider Configuration
@@ -314,6 +314,46 @@ resource "azurerm_linux_virtual_machine" "main" {
 - **VM size**: Standard_B2s (2 vCPU, 4GB RAM) - burstable, cost-effective
 - **OS image**: Ubuntu 22.04 LTS from Canonical
 - **authentication**: Choose a the admin/password login
+
+## Deploying the Infrastructure
+
+Now that we have our complete `main.tf` file, let's deploy it!
+
+### Step 1: Initialize Terraform
+```bash
+terraform init
+```
+This downloads the Azure provider and prepares your working directory.
+
+### Step 2: Validate the Configuration
+```bash
+terraform validate
+```
+This checks for syntax errors in your configuration files.
+
+### Step 3: Preview the Changes
+```bash
+terraform plan
+```
+Review what Terraform will create. You should see output showing 7 resources to be added:
+- 1 Resource Group
+- 1 Virtual Network
+- 1 Subnet
+- 1 Public IP
+- 1 Network Security Group
+- 1 Network Interface (and its NSG association)
+- 1 Virtual Machine
+
+### Step 4: Apply the Configuration
+```bash
+terraform apply
+```
+
+Terraform will prompt you to enter the admin password (since we marked it as sensitive and didn't provide a default). Type a secure password and press Enter.
+
+Type `yes` when prompted to confirm the deployment.
+
+The deployment will take approximately 3-5 minutes. You'll see output showing the progress of each resource being created.
 
 
 
