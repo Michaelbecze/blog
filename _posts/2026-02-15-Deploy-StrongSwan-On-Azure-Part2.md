@@ -32,7 +32,7 @@ Verify installation:
 terraform version
 ```
 # Basic Command
-Before we start looking at the script I want to go over the 4 commands that are used the most and their fucntion. We will use the following workflow to deploy and manage the lab environment.
+Before we start looking at the script I want to go over the 4 commands that are used the most and there fucntion. We will use the following workflow to deploy and manage the lab environment.
 
 #### Initialize
 ```bash
