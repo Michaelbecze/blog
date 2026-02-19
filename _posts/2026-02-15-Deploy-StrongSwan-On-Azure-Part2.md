@@ -256,21 +256,40 @@ resource "azurerm_network_security_group" "main" {
 
 #### 7. Network Interface - Connecting the VM to the Network
 ```hcl
-resource "azurerm_network_interface" "main" {
-  name                = "${var.vm_name}-nic"
+resource "azurerm_network_interface" "outside" {
+  name                = "${var.vm_name}-nic-outside"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
+  ip_forwarding_enabled = true  
 
   ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.main.id
+    name                          = "external"
+    subnet_id                     = azurerm_subnet.outside.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.main.id
   }
 }
 
-resource "azurerm_network_interface_security_group_association" "main" {
-  network_interface_id      = azurerm_network_interface.main.id
+resource "azurerm_network_interface" "server" {
+  name                = "${var.vm_name}-nic-server"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  ip_forwarding_enabled = true 
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.server.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "outside" {
+  network_interface_id      = azurerm_network_interface.outside.id
+  network_security_group_id = azurerm_network_security_group.main.id
+}
+
+resource "azurerm_network_interface_security_group_association" "server" {
+  network_interface_id      = azurerm_network_interface.server.id
   network_security_group_id = azurerm_network_security_group.main.id
 }
 ```
