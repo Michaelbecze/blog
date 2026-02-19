@@ -141,7 +141,7 @@ sudo sysctl -w net.ipv4.ip_forward=1
 
 ```
 
-Lets reload the configurationa and StrongSwan is ready to go:
+Lets reload the configuration and StrongSwan is ready to go:
 ```
 sudo ipsec reload
 sudo ipsec restart
