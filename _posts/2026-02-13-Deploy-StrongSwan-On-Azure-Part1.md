@@ -188,7 +188,7 @@ ip access-list extended azure
  10 permit ip 192.168.200.0 0.0.0.255 10.250.1.0 0.0.0.255
  20 permit ip 192.168.200.0 0.0.0.255 10.250.2.0 0.0.0.255
 ```
-Lastly we will create the Crypto Map and attach it to an interface. This is what ties everything together, we referance the Transform set we, the Ike Profile, the access list for traffic to encrypt. I also use reverse route injection to add a static route to the routing table that will use this tunnel for the subnets 10.250.1.0/24 and 10.250.2.0/24.
+Lastly we will create the Crypto Map and attach it to an interface. This is what ties everything together, we referance the Transform set we, the Ike Profile, and the access list for traffic to encrypt. Reverse route injection is used to add a static route to the routing table for the subnets 10.250.1.0/24 and 10.250.2.0/24.
 ```
 crypto map map-2 10 ipsec-isakmp 
  set peer {Public IP of StrongSwan}
