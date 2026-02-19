@@ -314,7 +314,8 @@ resource "azurerm_linux_virtual_machine" "main" {
   disable_password_authentication = false    
 
   network_interface_ids = [
-    azurerm_network_interface.main.id,
+    azurerm_network_interface.outside.id,
+    azurerm_network_interface.server.id,
   ]
 
   admin_ssh_key {
