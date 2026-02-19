@@ -153,16 +153,23 @@ resource "azurerm_resource_group" "main" {
 ```hcl
 resource "azurerm_virtual_network" "main" {
   name                = "${var.vm_name}-vnet"
-  address_space       = ["10.0.0.0/16"]
+  address_space       = ["10.250.0.0/20"]
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 }
 
-resource "azurerm_subnet" "main" {
-  name                 = "${var.vm_name}-subnet"
+resource "azurerm_subnet" "outside" {
+  name                 = "outside-subnet"
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = ["10.250.1.0/24"]
+}
+
+resource "azurerm_subnet" "server" {
+  name                 = "server-subnet-1"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.250.2.0/24"]
 }
 ```
 
