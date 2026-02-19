@@ -1,6 +1,6 @@
 # Deploying the StrongSwan Lab with Terraform
 
-In Part 1, we manually configured StrongSwan inside Azure. For this lab, I am going yo use **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**. For now we are just going tp build out the Azure side of the Lab but with the versatility of terriform we can easily add the Cisco routers to the config. By using terriform I am able to quickly and easily spin up labs in Azure and then take them down with nothing left behind. If you are learning Azure this is great way to deploy some complex Labs without have to endless click through menus. 
+In Part 1, we manually configured StrongSwan inside Azure. For this lab, I am going yo use **Infrastructure as Code (IaC)** to deploy the entire environment in minutes using **Terraform**. For now we are just going to build out the Azure side of the Lab but with the versatility of terriform we can easily add the Cisco routers to the config. By using terriform I am able to quickly and easily spin up labs in Azure and then take them down with nothing left behind. If you are learning Azure this is great way to deploy some complex Labs without have to endless click through menus. 
 
 ## What Is Terraform?
 
