@@ -84,7 +84,7 @@ provider "azurerm" {
 - **`required_providers`**: Specifies we need the Azure Resource Manager provider (azurerm) version 3.x
 - **`provider "azurerm"`**: Configures the Azure provider. The empty `features {}` block is required by the Azure provider.
 
-**Authentication:** Terraform uses environment variables (`ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`) to authenticate with Azure. These should be set before running Terraform commands. I store this varibles in a file called "set-azure-creds.sh"
+**Authentication:** Terraform uses environment variables (`ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`) to authenticate with Azure. These should be set before running Terraform commands. I store thse varibles in a file called "set-azure-creds.sh." It is best practice to create a service user just for terriform to use.
 
 #### 2. Variables - Making Configuration Flexible
 ```hcl
