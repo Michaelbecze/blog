@@ -45,10 +45,11 @@ Encapsulated in VXLAN
 Routers vs Switches
 | IOS/XE Routers  | IOS/XE Switches |
 |---|---|
-| Has BDI interface | Has VLAN interface |
+| BDI is the L3 gateway | SVI (interface VlanX) is the L3 gateway |
 | Uses `bridge-domain` configuration | Uses `vlan` configuration |
 | Uses `service instance` for access VLAN | Uses `switchport access vlan` for access VLAN |
 | Service instance is added to a `bridge-domain` | VLAN is built from switchport VLAN assignments |
+|
 
 
 ## Why Routers Use Bridge Domains
