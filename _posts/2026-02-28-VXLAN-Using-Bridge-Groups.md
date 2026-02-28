@@ -23,7 +23,6 @@ graph TD
     C --> D[Encapsulated in VXLAN]
 </div>
 
-
 **Routers** don't operate around VLANs the same way switches do. Instead, they use Bridge Domains. These allow us to turn a routed port into something that looks alot like a switch port. For a router using a Brdige Domain the signal flow looks like this:
 <div class="mermaid">
 graph TD
@@ -36,12 +35,10 @@ graph TD
 Routers are fundamentally Layer-3 devices. When you enable L2 functionality on a router, you're activating features typically associated with:
 
 L2VPN / Ethernet Virtual Circuit (EVC)
-
 Instead of VLANs being native objects like on a switch, routers use:
 -   Service Instances
 -   Encapsulation dot1q
 -   Bridge Domains
-
 This gives routers much more flexibility:
 -   Per-service QoS
 -   Per-service policy
@@ -49,6 +46,7 @@ This gives routers much more flexibility:
 -   WAN transport integration (IPsec, GRE, MPLS, etc.)
 
 #### Routers vs Switches
+
 | IOS/XE Routers  | IOS/XE Switches |
 |---|---|
 | BDI is the L3 gateway | SVI (interface VlanX) is the L3 gateway |
