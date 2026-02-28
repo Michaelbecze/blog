@@ -1,4 +1,5 @@
-
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true });</script>
 ## Bridge Domains on Routers vs VLANs on Switches (When Doing VXLAN)
 =================================================================
 
@@ -15,26 +16,22 @@ In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco 
 --- 
 On a typical **switch** a vlan is mapped to a VNI that is advertised into EVPN and ultimately Encapsulated by VXLAN, the signal flow looks like this:
 
-VLAN 10\
- ↓\
-Mapped to VNI 10010\
- ↓\
-Advertised via EVPN\
- ↓\
-Encapsulated in VXLAN
+<div class="mermaid">
+graph TD
+    A[VLAN 10] --> B[Mapped to VNI 10010]
+    B --> C[Advertised via EVPN]
+    C --> D[Encapsulated in VXLAN]
+</div>
 
 
 **Routers** don't operate around VLANs the same way switches do. Instead, they use Bridge Domains. These allow us to turn a routed port into something that looks alot like a switch port. For a router using a Brdige Domain the signal flow looks like this:
-
-Service instance 10 \
- ↓\
-Bridge Domain 10\
- ↓\
-Mapped to VNI 10010\
- ↓\
-Advertised via EVPN\
- ↓\
-Encapsulated in VXLAN
+<div class="mermaid">
+graph TD
+    A[Service Instance 10] --> B[Bridge Domain 10]
+    B --> C[Mapped to VNI 10010]
+    C --> D[Advertised via EVPN]
+    D --> E[Encapsulated in VXLAN]
+</div>
 
 Routers are fundamentally Layer-3 devices. When you enable L2 functionality on a router, you're activating features typically associated with:
 
