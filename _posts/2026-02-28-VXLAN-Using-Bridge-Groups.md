@@ -1,5 +1,5 @@
 
-Bridge Domains on Routers vs VLANs on Switches (When Doing VXLAN)
+## Bridge Domains on Routers vs VLANs on Switches (When Doing VXLAN)
 =================================================================
 
 When we think about extending Layer-2 networks over VXLAN, the first mental model is usually:
@@ -11,9 +11,8 @@ But what happens when your VXLAN VTEP is not a switch --- but a router?
 In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco Catalyst 8000V** routers. Instead of VLANs being the primary Layer-2 construct, we use **bridge-domains**. Let's break down how they compare --- and why they are conceptually the same thing.
 
 
-
-The Traditional Model: VLANs on Switches
-----------------------------------------
+## Vlans and Bridge Domains
+--- 
 
 On a typical switch, the model looks like this:
 
@@ -28,23 +27,13 @@ Encapsulated in VXLAN
 On a switch:
 
 -   VLAN = Layer 2 broadcast domain
-
 -   MAC table is built per VLAN
-
 -   VXLAN maps VLAN ↔ VNI
-
 -   SVI provides L3 gateway (optional)
-
-This model is extremely common in data centers.
 
 * * * * *
 
-The Router Model: Bridge Domains
---------------------------------
-
-Routers don't operate around VLANs the same way switches do.
-
-Instead, they use:
+Routers don't operate around VLANs the same way switches do. Instead, they use:
 
 Bridge Domain (BD)
 
@@ -57,13 +46,9 @@ bridge-domain 10\
 What's happening here?
 
 -   A service instance (`encapsulation dot1q 10`) receives VLAN 10 traffic
-
 -   That traffic is placed into Bridge Domain 10
-
 -   The bridge domain is mapped to VNI 10010
-
 -   EVPN advertises MAC reachability
-
 -   The NVE interface encapsulates traffic into VXLAN
 
 Conceptually:
