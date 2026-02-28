@@ -39,6 +39,7 @@ Instead of VLANs being native objects like on a switch, routers use:
 -   Service Instances
 -   Encapsulation dot1q
 -   Bridge Domains
+
 This gives routers much more flexibility:
 -   Per-service QoS
 -   Per-service policy
