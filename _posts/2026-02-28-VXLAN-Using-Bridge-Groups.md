@@ -6,7 +6,7 @@ When we think about extending Layer-2 networks over VXLAN, the first mental mode
 
 > VLAN on a switch → mapped to VNI → carried across VXLAN.
 
-But what happens when your VXLAN VTEP is not a switch --- but a router? I was reading a blog post on [ipspace.net](https://blog.ipspace.net/2026/02/evpn-cisco-ios/) that got me thinking about how this configuration would look.
+But what happens when your VXLAN VTEP is not a switch --- but a router? I was reading a blog post on [ipspace.net](https://blog.ipspace.net/2026/02/evpn-cisco-ios/) by Ivan Pepelnjak that got me thinking about how this configuration would look.
 
 In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco Catalyst 8000V** routers. Instead of VLANs being the primary Layer-2 construct, we use **bridge-domains**. Let's break down how they compare --- and why they are conceptually the same thing.
 
