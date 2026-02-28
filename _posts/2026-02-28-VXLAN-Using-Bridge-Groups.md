@@ -13,7 +13,7 @@ In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco 
 
 ## Vlans and Bridge Domains
 --- 
-On a typical switch, the signal flow looks like this:
+On a typical switch a vlan is mapped to a VNI that is advertised into EVPN and ultimately Encapsulated by VXLAN, the signal flow looks like this:
 
 VLAN 10\
  ↓\
@@ -23,12 +23,6 @@ Advertised via EVPN\
  ↓\
 Encapsulated in VXLAN
 
-On a switch:
-
--   VLAN = Layer 2 broadcast domain
--   MAC table is built per VLAN
--   VXLAN maps VLAN ↔ VNI
--   SVI provides L3 gateway (optional)
 
 Routers don't operate around VLANs the same way switches do. Instead, they use Bridge Domains. These allow us to turn a routed port into something that looks alot like a switch port. For a router using a Brdige Domain the signal flow looks like this:
 
@@ -42,7 +36,7 @@ Advertised via EVPN\
  ↓\
 Encapsulated in VXLAN
 
-Routers vs Switches
+#### Routers vs Switches
 | IOS/XE Routers  | IOS/XE Switches |
 |---|---|
 | BDI is the L3 gateway | SVI (interface VlanX) is the L3 gateway |
