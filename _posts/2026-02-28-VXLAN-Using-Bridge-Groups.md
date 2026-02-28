@@ -54,7 +54,6 @@ This gives routers much more flexibility:
 | Uses `bridge-domain` configuration | Uses `vlan` configuration |
 | Uses `service instance` for access VLAN | Uses `switchport access vlan` for access VLAN |
 | Service instance is added to a `bridge-domain` | VLAN is built from switchport VLAN assignments |
-|
 
 ---
 ## Lab Topology
