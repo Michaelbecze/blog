@@ -13,7 +13,7 @@ In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco 
 
 ## Vlans and Bridge Domains
 --- 
-On a typical switch a vlan is mapped to a VNI that is advertised into EVPN and ultimately Encapsulated by VXLAN, the signal flow looks like this:
+On a typical **switch** a vlan is mapped to a VNI that is advertised into EVPN and ultimately Encapsulated by VXLAN, the signal flow looks like this:
 
 VLAN 10\
  ↓\
@@ -24,7 +24,7 @@ Advertised via EVPN\
 Encapsulated in VXLAN
 
 
-Routers don't operate around VLANs the same way switches do. Instead, they use Bridge Domains. These allow us to turn a routed port into something that looks alot like a switch port. For a router using a Brdige Domain the signal flow looks like this:
+**Routers** don't operate around VLANs the same way switches do. Instead, they use Bridge Domains. These allow us to turn a routed port into something that looks alot like a switch port. For a router using a Brdige Domain the signal flow looks like this:
 
 Service instance 10 \
  ↓\
@@ -36,22 +36,7 @@ Advertised via EVPN\
  ↓\
 Encapsulated in VXLAN
 
-#### Routers vs Switches
-| IOS/XE Routers  | IOS/XE Switches |
-|---|---|
-| BDI is the L3 gateway | SVI (interface VlanX) is the L3 gateway |
-| Uses `bridge-domain` configuration | Uses `vlan` configuration |
-| Uses `service instance` for access VLAN | Uses `switchport access vlan` for access VLAN |
-| Service instance is added to a `bridge-domain` | VLAN is built from switchport VLAN assignments |
-|
-
-
-## Why Routers Use Bridge Domains
----
-
-Routers are fundamentally Layer-3 devices.
-
-When you enable L2 functionality on a router, you're activating features typically associated with:
+Routers are fundamentally Layer-3 devices. When you enable L2 functionality on a router, you're activating features typically associated with:
 
 L2VPN / Ethernet Virtual Circuit (EVC)
 
@@ -65,6 +50,20 @@ This gives routers much more flexibility:
 -   Per-service policy
 -   L2VPN support (xconnect, EVPN, pseudowire, etc.)
 -   WAN transport integration (IPsec, GRE, MPLS, etc.)
+
+#### Routers vs Switches
+| IOS/XE Routers  | IOS/XE Switches |
+|---|---|
+| BDI is the L3 gateway | SVI (interface VlanX) is the L3 gateway |
+| Uses `bridge-domain` configuration | Uses `vlan` configuration |
+| Uses `service instance` for access VLAN | Uses `switchport access vlan` for access VLAN |
+| Service instance is added to a `bridge-domain` | VLAN is built from switchport VLAN assignments |
+|
+---
+## Lab Topology
+
+![Basic Lab set up]({{ site.baseurl }}/assets/VXLAN over Bridge GRoups.png)
+
 
 
 
