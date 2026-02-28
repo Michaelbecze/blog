@@ -1,6 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({ startOnLoad: true });</script>
-## Bridge Domains on Routers vs VLANs on Switches (When Doing VXLAN)
+## EVPN VXLAN over a Bridge Domain 
 =================================================================
 
 When we think about extending Layer-2 networks over VXLAN, the first mental model is usually:
