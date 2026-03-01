@@ -82,5 +82,8 @@ The configuration is built up in layers:
 - Cloud-Host1: Ubuntu endpoint
 - Cloud-Host2: Ubuntu endpoint
 
+## Configuration
+I am not going to go over how to make a VPN tunnel or EIGRP configuration. I will provide the lab as a .yaml at the end if you would like to look over that. VPN tunnels using VTI are a whole post in themselves. I am going to pick up with the EVPN configuration, quickly go over the VTEP, and then show how the service instance works with bridge domains.
+
 
 
