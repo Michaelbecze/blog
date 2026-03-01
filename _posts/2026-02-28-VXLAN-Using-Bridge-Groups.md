@@ -112,6 +112,7 @@ router bgp 65001
   neighbor 10.200.1.1 send-community extended
  exit-address-family
 ```
+
 ### EVPN and VTEP
 Here we are going to create the VTEP, tell it to use EVPN and add a VNI.
 
@@ -150,4 +151,84 @@ interface GigabitEthernet2
   encapsulation dot1q 10
 ```
 
+## Verify
+Fist make sure that EVPN is up
+```
+show bgp l2vpn evpn summary
+show bgp l2vpn evpn
+```
 
+Now lets check our VTEP to make sure that they are peers and that the VNI is up
+```
+Cloud-Edge#show nve peers 
+'M' - MAC entry download flag  'A' - Adjacency download flag
+'4' - IPv4 flag  '6' - IPv6 flag
+
+Interface  VNI      Type Peer-IP          RMAC/Num_RTs   eVNI     state flags UP time
+nve1       10010    L2CP 10.200.1.1       4              10010      UP   N/A  1w0d
+```
+```
+Cloud-Edge#show nve vni
+Interface  VNI        Multicast-group  VNI state  Mode  BD    cfg vrf                      
+nve1       10010      N/A              Up         L2CP  10    CLI N/A                  
+```
+
+Lets check our bridge doamin to make sure that G2 vlan 10 is mapping to evpn like we exspect
+```
+Cloud-Edge#show bridge-domain 10 
+Bridge-domain 10 (2 ports in all)
+State: UP                    Mac learning: Enabled
+Aging-Timer: 300 second(s)
+Unknown Unicast Flooding Suppression: Disabled
+Maximum address limit: 65536
+    GigabitEthernet2 service instance 10
+    vni 10010
+   AED MAC address    Policy  Tag       Age  Pseudoport
+   -----------------------------------------------------------------------------
+   -   5254.0045.98BF forward dynamic_c 101  GigabitEthernet2.EFP10
+   -   5254.0004.4192 forward static_r  0    nve1.VNI10010, EVPN
+```
+Lets make sure that we see mac address being advertised by EVPN
+```
+Cloud-Edge#show l2vpn evpn mac
+MAC Address    EVI   BD    ESI                      Ether Tag  Next Hop(s)
+-------------- ----- ----- ------------------------ ---------- ---------------
+5254.0004.4192 10    10    0000.0000.0000.0000.0000 0          10.200.1.1
+5254.0045.98bf 10    10    0000.0000.0000.0000.0000 0          Gi2:10
+```
+I want to show 1 final command that came in very handy for me as it seems to wrap everything up every nicely. I am just to going post the outut but note the VTEP IPs, Vtep Peers, Encapsulation type, dridge domain, and service instance to port mapping.
+```
+Cloud-Edge# show l2vpn evpn evi 10 detail 
+EVPN instance:       10 (VLAN Based)
+  RD:                65001:10 (cfg)
+  Import-RTs:        65001:10 
+  Export-RTs:        65001:10 
+  Per-EVI Label:     none
+  State:             Established
+  Replication Type:  Ingress
+  Encapsulation:     vxlan
+  IP Local Learn:    Enabled (global)
+  Adv. Def. Gateway: Disabled (global)
+  Re-originate RT5:  Disabled
+  AR Flood Suppress: Enabled (global)
+  Bridge Domain:     10
+    Ethernet-Tag:    0
+    State:           Established
+    Flood Suppress:  Attached
+    Core If:         
+    Access If:       
+    NVE If:          nve1
+    RMAC:            0000.0000.0000
+    Core BD:         0
+    L2 VNI:          10010
+    L3 VNI:          0
+    VTEP IP:         10.200.1.2
+    Pseudoports:
+      GigabitEthernet2 service instance 10
+        Routes: 1 MAC, 2 MAC/IP
+    Peers:
+      10.200.1.1
+        Routes: 1 MAC, 2 MAC/IP, 1 IMET, 0 EAD
+```
+
+At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an ipsec VPN tunnel and VXLAN like they are on the same LAN. 
