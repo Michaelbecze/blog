@@ -2,7 +2,7 @@
 <script>mermaid.initialize({ startOnLoad: true });</script>
 ## EVPN VXLAN over a Bridge Domain 
 
-When we think about extending Layer-2 networks over VXLAN, the first mental model is usually with a Switch to Switch in a Spine Leaf or maybe orver a DCI. But what happens when your VXLAN VTEP is not a switch --- but a router? I was reading a blog post on [ipspace.net](https://blog.ipspace.net/2026/02/evpn-cisco-ios/) by Ivan Pepelnjak that got me thinking about how this configuration would look. 
+When we think about extending Layer-2 networks over VXLAN, the first mental model is usually with a Switch to Switch in a Spine Leaf or maybe orver a DCI. But what happens when your VXLAN VTEP is not a switch but a router? I was reading a blog post on [ipspace.net](https://blog.ipspace.net/2026/02/evpn-cisco-ios/) by Ivan Pepelnjak that got me thinking about how this configuration would look over a WAN link. 
 
 In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco Catalyst 8000V** routers. Instead of VLANs being the primary Layer-2 construct, we use bridge-domains. Let's break down how they compare --- and why they are conceptually the same thing.
 
@@ -84,7 +84,7 @@ The configuration is built up in layers:
 I am not going to go over how to make a VPN tunnel or EIGRP configuration. I will provide the lab as a .yaml at the end if you would like to look over that. VPN tunnels using VTI are a whole post in themselves. I am going to pick up with the EVPN configuration, quickly go over the VTEP, and then show how the service instance works with bridge domains.
 
 ### MP-EVPN
-Bring up EVPN on both edge routers using there loopback address. This is pretty strait forward BPG configuration but I thought I wod show it again. 
+Bring up EVPN on both edge routers using their loopback addresses. This is pretty straightforward BGP configuration but I thought I would show it anyway.
 - HQ-Edge loopback 1 = 10.200.1.1
 - Cloud-Edge: loopback 1 = 10.200.1.2
 
@@ -114,7 +114,7 @@ router bgp 65001
 ```
 
 ### EVPN and VTEP
-Here we are going to create the VTEP, tell it to use EVPN and add a VNI.
+Here we are going to create the VTEP, tell it to use EVPN, and add a VNI.
 
 ```
 interface nve1
@@ -123,7 +123,7 @@ interface nve1
  host-reachability protocol bgp
  member vni 10010 ingress-replication
 ```
-Then we are going to create an EVPN instance and tell it to using VXLAN for encaplsuation and ingress replication for our BUM traffic.
+Then we are going to create an EVPN instance and tell it to use VXLAN for encapsulation and ingress replication for our BUM traffic.
 ```
 l2vpn evpn
  replication-type ingress
@@ -152,13 +152,13 @@ interface GigabitEthernet2
 ```
 
 ## Verify
-Fist make sure that EVPN is up
+First make sure that EVPN is up:
 ```
 show bgp l2vpn evpn summary
 show bgp l2vpn evpn
 ```
 
-Now lets check our VTEP to make sure that they are peers and that the VNI is up
+Now let's check our VTEPs to make sure that they are peers and that the VNI is up:
 ```
 Cloud-Edge#show nve peers 
 'M' - MAC entry download flag  'A' - Adjacency download flag
@@ -173,7 +173,7 @@ Interface  VNI        Multicast-group  VNI state  Mode  BD    cfg vrf
 nve1       10010      N/A              Up         L2CP  10    CLI N/A                  
 ```
 
-Lets check our bridge doamin to make sure that G2 vlan 10 is mapping to evpn like we exspect
+Let's check our bridge domain to make sure that G2 VLAN 10 is mapping to EVPN as we expect:
 ```
 Cloud-Edge#show bridge-domain 10 
 Bridge-domain 10 (2 ports in all)
@@ -188,7 +188,7 @@ Maximum address limit: 65536
    -   5254.0045.98BF forward dynamic_c 101  GigabitEthernet2.EFP10
    -   5254.0004.4192 forward static_r  0    nve1.VNI10010, EVPN
 ```
-Lets make sure that we see mac address being advertised by EVPN
+Let's make sure that we see MAC addresses being advertised by EVPN:
 ```
 Cloud-Edge#show l2vpn evpn mac
 MAC Address    EVI   BD    ESI                      Ether Tag  Next Hop(s)
@@ -196,7 +196,7 @@ MAC Address    EVI   BD    ESI                      Ether Tag  Next Hop(s)
 5254.0004.4192 10    10    0000.0000.0000.0000.0000 0          10.200.1.1
 5254.0045.98bf 10    10    0000.0000.0000.0000.0000 0          Gi2:10
 ```
-I want to show 1 final command that came in very handy for me as it seems to wrap everything up every nicely. I am just to going post the outut but note the VTEP IPs, Vtep Peers, Encapsulation type, dridge domain, and service instance to port mapping.
+I want to show one final command that came in very handy for me as it seems to wrap everything up very nicely. I am just going to post the output, but note the VTEP IPs, VTEP peers, encapsulation type, bridge domain, and service instance to port mapping:
 ```
 Cloud-Edge# show l2vpn evpn evi 10 detail 
 EVPN instance:       10 (VLAN Based)
@@ -231,6 +231,6 @@ EVPN instance:       10 (VLAN Based)
         Routes: 1 MAC, 2 MAC/IP, 1 IMET, 0 EAD
 ```
 
-At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an ipsec VPN tunnel and VXLAN like they are on the same LAN. In addtional here is a linke to the .ymal file so that you can spin this up in CML for yourself. 
+At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an IPsec VPN tunnel and VXLAN, as if they are on the same LAN. Here is a link to the .yaml file so that you can spin this up in CML yourself.
 
 [Download the lab file](https://raw.githubusercontent.com/Michaelbecze/CML-Labs/main/EVPN_VXLAN_over_VPN_using_Bridge_Groups.yaml)
