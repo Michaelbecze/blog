@@ -1,12 +1,10 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({ startOnLoad: true });</script>
 ## EVPN VXLAN over a Bridge Domain 
-=================================================================
 
 When we think about extending Layer-2 networks over VXLAN, the first mental model is usually with a Switch to Switch in a Spine Leaf or maybe orver a DCI. But what happens when your VXLAN VTEP is not a switch --- but a router? I was reading a blog post on [ipspace.net](https://blog.ipspace.net/2026/02/evpn-cisco-ios/) by Ivan Pepelnjak that got me thinking about how this configuration would look. 
 
-In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco Catalyst 8000V** routers. Instead of VLANs being the primary Layer-2 construct, we use **bridge-domains**. Let's break down how they compare --- and why they are conceptually the same thing.
-
+In this lab, I built VXLAN EVPN over an IPsec-protected WAN between two **Cisco Catalyst 8000V** routers. Instead of VLANs being the primary Layer-2 construct, we use bridge-domains. Let's break down how they compare --- and why they are conceptually the same thing.
 
 ## Vlans and Bridge Domains
 --- 
