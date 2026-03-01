@@ -26,9 +26,9 @@ graph TD
     D --> E[Encapsulated in VXLAN]
 </div>
 
-Routers are fundamentally Layer-3 devices. When you enable L2 functionality on a router, you're activating features typically associated with:
 
-L2VPN / Ethernet Virtual Circuit (EVC)
+Routers are fundamentally Layer-3 devices. When you enable L2 functionality on a router, you're activating features typically associated with:
+**L2VPN / Ethernet Virtual Circuit (EVC)**
 Instead of VLANs being native objects like on a switch, routers use:
 -   Service Instances
 -   Encapsulation dot1q
