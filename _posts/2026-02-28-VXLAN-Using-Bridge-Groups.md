@@ -81,7 +81,7 @@ The configuration is built up in layers:
 - Cloud-Host2: Ubuntu endpoint
 
 ## Configuration
-I am not going to go over how to make a VPN tunnel or EIGRP configuration. I will provide the lab as a .yaml at the end if you would like to look over that. VPN tunnels using VTI are a whole post in themselves. I am going to pick up with the EVPN configuration, quickly go over the VTEP, and then show how the service instance works with bridge domains.
+I am not going to go over how to make a VPN tunnel or EIGRP configuration. I will provide the lab as a `.yaml` at the end if you would like to look over that. VPN tunnels using VTI are a whole post in themselves. I am going to pick up with the EVPN configuration, quickly go over the VTEP, and then show how the service instance works with bridge domains.
 
 ### MP-EVPN
 Bring up EVPN on both edge routers using their loopback addresses. This is pretty straightforward BGP configuration but I thought I would show it anyway.
@@ -231,6 +231,6 @@ EVPN instance:       10 (VLAN Based)
         Routes: 1 MAC, 2 MAC/IP, 1 IMET, 0 EAD
 ```
 
-At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an IPsec VPN tunnel and VXLAN, as if they are on the same LAN. Here is a link to the .yaml file so that you can spin this up in CML yourself.
+At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an IPsec VPN tunnel and VXLAN, as if they are on the same LAN. Here is a link to the `.yaml` file so that you can spin this up in CML yourself.
 
 [Download the lab file](https://raw.githubusercontent.com/Michaelbecze/CML-Labs/main/EVPN_VXLAN_over_VPN_using_Bridge_Groups.yaml)
