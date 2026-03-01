@@ -83,5 +83,71 @@ The configuration is built up in layers:
 ## Configuration
 I am not going to go over how to make a VPN tunnel or EIGRP configuration. I will provide the lab as a .yaml at the end if you would like to look over that. VPN tunnels using VTI are a whole post in themselves. I am going to pick up with the EVPN configuration, quickly go over the VTEP, and then show how the service instance works with bridge domains.
 
+### MP-EVPN
+Bring up EVPN on both edge routers using there loopback address. This is pretty strait forward BPG configuration but I thought I wod show it again. 
+- HQ-Edge loopback 1 = 10.200.1.1
+- Cloud-Edge: loopback 1 = 10.200.1.2
+
+HQ-Edge
+```
+router bgp 65001
+ bgp log-neighbor-changes
+ neighbor 10.200.1.2 remote-as 65001
+ neighbor 10.200.1.2 update-source Loopback1
+ !
+ address-family l2vpn evpn
+  neighbor 10.200.1.2 activate
+  neighbor 10.200.1.2 send-community extended
+ exit-address-family
+```
+Cloud-Edge
+```
+router bgp 65001
+ bgp log-neighbor-changes
+ neighbor 10.200.1.1 remote-as 65001
+ neighbor 10.200.1.1 update-source Loopback1
+ !
+ address-family l2vpn evpn
+  neighbor 10.200.1.1 activate
+  neighbor 10.200.1.1 send-community extended
+ exit-address-family
+```
+### EVPN and VTEP
+Here we are going to create the VTEP, tell it to use EVPN and add a VNI.
+
+```
+interface nve1
+ no ip address
+ source-interface Loopback1
+ host-reachability protocol bgp
+ member vni 10010 ingress-replication
+```
+Then we are going to create an EVPN instance and tell it to using VXLAN for encaplsuation and ingress replication for our BUM traffic.
+```
+l2vpn evpn
+ replication-type ingress
+ router-id Loopback1
+!
+l2vpn evpn instance 10 vlan-based
+ encapsulation vxlan
+ replication-type ingress
+```
+
+### Bridge Doamin
+This is the new part. We will create a bridge domain and map it to a service instance. This bridge domain will connect the service instance to EVPN, so that anything that hits the service instance will get mapped into EVPN. That service instance then gets applied to an interface with a dot1q tag.
+
+```
+bridge-domain 10 
+ member GigabitEthernet2 service-instance 10
+ member evpn-instance 10 vni 10010
+```
+
+Apply to an interface
+```
+interface GigabitEthernet2
+ no ip address
+ service instance 10 ethernet
+  encapsulation dot1q 10
+```
 
 
