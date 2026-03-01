@@ -233,4 +233,4 @@ EVPN instance:       10 (VLAN Based)
 
 At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an IPsec VPN tunnel and VXLAN, as if they are on the same LAN. Here is a link to the `.yaml` file so that you can spin this up in CML yourself.
 
-[Download the lab file](https://raw.githubusercontent.com/Michaelbecze/CML-Labs/main/EVPN_VXLAN_over_VPN_using_Bridge_Groups.yaml)
+[Download the lab file](https://github.com/Michaelbecze/CML-Labs/blob/main/EVPN_VXLAN_over_VPN_using_Bridge_Groups.yaml)
