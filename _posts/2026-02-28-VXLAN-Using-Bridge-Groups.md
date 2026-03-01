@@ -67,8 +67,8 @@ The configuration is built up in layers:
 #### HQ Side
 - HQ-Host1: Ubuntu endpoint
 - HQ-Host2: Ubuntu endpoint
-- HQ-Core: VLAN 10 / VLAN 20 — L2 access switch, trunks to HQ-Edge
-- HQ-Edge: 200.1.1.2 — Cat8000V VTEP, runs IPsec + EVPN + VXLAN VNI 10010
+- HQ-Core: L2 access switch, trunks to HQ-Edge
+- HQ-Edge: Cat8000V VTEP, runs IPsec + EVPN + VXLAN VNI 10010
 
 #### Internet
 - ISP-1: internet transit
@@ -77,8 +77,8 @@ The configuration is built up in layers:
 - ISP-4: internet transit
 
 #### Cloud Side
-- Cloud-Edge: 199.1.1.2 — Cat8000V VTEP, runs IPsec + EVPN + VXLAN VNI 10010, BDI10 gateway 192.168.1.1
-- Cloud-Vnet: VLAN 10 — L2 access switch, trunks to Cloud-Edge
+- Cloud-Edge: Cat8000V VTEP, runs IPsec + EVPN + VXLAN VNI 10010
+- Cloud-Vnet: L2 access switch, trunks to Cloud-Edge
 - Cloud-Host1: Ubuntu endpoint
 - Cloud-Host2: Ubuntu endpoint
 
