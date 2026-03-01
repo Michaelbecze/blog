@@ -231,4 +231,6 @@ EVPN instance:       10 (VLAN Based)
         Routes: 1 MAC, 2 MAC/IP, 1 IMET, 0 EAD
 ```
 
-At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an ipsec VPN tunnel and VXLAN like they are on the same LAN. 
+At this point HQ-Host1 and Cloud-Host1 can now ping each other over a WAN connection using an ipsec VPN tunnel and VXLAN like they are on the same LAN. In addtional here is a linke to the .ymal file so that you can spin this up in CML for yourself. 
+
+[Download the lab file](https://raw.githubusercontent.com/Michaelbecze/CML-Labs/main/EVPN_VXLAN_over_VPN_using_Bridge_Groups.yaml)
