@@ -15,6 +15,8 @@ In Asymmetric IRB, the ingress VTEP performs both routing and bridging, while th
 Because routing happens at ingress, return traffic takes a completely different VNI path, it will be routed at the far end and switched back using the source VNI. This asymmetry is where the name comes from.
 The critical implication here is that every VNI for every subnet must exist on every VTEP that needs to participate in inter-subnet routing. If VTEP-A needs to route between VLAN 10 and VLAN 20, both VNIs must be locally configured on every VTEP in the fabric. 
 
+![Basic Lab set up]({{ site.baseurl }}/assets/VXLAN-IRB-AS.png)
+
 ### Symmetric IRB
 In Symmetric IRB, both the ingress and egress VTEPs perform both routing and bridging. A special Layer 3 transit VNI (L3VNI) is introduced to carry routed traffic between VTEPs. The traffic flow looks like this:
 
