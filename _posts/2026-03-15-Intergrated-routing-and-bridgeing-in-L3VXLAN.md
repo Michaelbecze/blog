@@ -20,12 +20,12 @@ The critical implication here is that every VNI for every subnet must exist on e
 ### Symmetric IRB
 In Symmetric IRB, both the ingress and egress VTEPs perform both routing and bridging. A special Layer 3 transit VNI (L3VNI) is introduced to carry routed traffic between VTEPs. The traffic flow looks like this:
 
-  1. The ingress VTEP bridges the packet into the source Layer 2 VNI, then routes it into the L3VNI
-  2. The packet traverses the VXLAN fabric encapsulated in the L3VNI
-  3. The egress VTEP routes the packet from the L3VNI into the destination Layer 2 VNI
+  1. The ingress VTEP1 bridges the packet into the source Layer 2 VNI, then routes it into the L3VNI
+  2. The packet traverses the VXLAN fabric encapsulated in the L3 transit VNI 6503
+  3. The egress VTEP routes the packet from the L3 VNI 6503 into the destination Layer 2 VNI
   4. The packet is bridged to the local endpoint
 
-Because both sides perform routing, return traffic uses the same L3VNI path, making the forwarding behavior symmetric. 
+Because both sides perform routing, return traffic uses the same L3 transit VNI 6503, making the forwarding behavior symmetric. 
 
 ![VXLAN-IRB-AS]({{ site.baseurl }}/assets/VXLAN-IRB-SYM1.png)
 
