@@ -35,6 +35,8 @@ There a 2 modles that are used when it comes to where the L3 Gateway should be f
 
 **Distributed Anycast Gateway (DAG)** — every VTEP acts as the default gateway for its locally connected hosts, all sharing the same gateway IP and MAC address across the fabric. This enables optimal local routing, supports seamless VM mobility, and is the recommended model for most deployments.
 
+![VXLAN-IRB-DAG]({{ site.baseurl }}/assets/VXLAN-IRB-DAG.png)
+
 **Centralized Default Gateway (CGW)** — a single designated VTEP handles all inter-subnet routing for the fabric. All other VTEPs perform Layer 2 bridging only and forward traffic to the centralized gateway for routing. This model is useful when inter-subnet traffic needs to pass through a firewall or centralized policy enforcement point, but it introduces a potential bottleneck and single point of failure.
 
 It is typical to use a both Types of Gateways in a deployment, so that inter-subnet traffic usese DAG and traffic going to a WAN or policy enforement point will use a CGW. In the following weeks I hope to biuld on these Concepts to create some Labs that some both DAG and CGW in action. 
