@@ -3,7 +3,7 @@ Integrated Routing and Bridging (IRB) refers to the capability of a VTEP (VXLAN 
 
 ---
 ## Asymmetric IRB vs Symmetric IRB
-###Asymmetric IRB
+### Asymmetric IRB
 In Asymmetric IRB, the ingress VTEP performs both routing and bridging, while the egress VTEP performs only bridging. The traffic flow looks like this:
 
   1. A frame arrives at the ingress VTEP and is bridged into the correct Layer 2 VNI
