@@ -33,7 +33,7 @@ Because both sides perform routing, return traffic uses the same L3 transit VNI 
 ## Gateway Modles
 There a 2 modles that are used when it comes to where the L3 Gateway should be for each subenet in the EVPN VXLAN Fabric:
 
-**Distributed Anycast Gateway (DAG)** — every VTEP acts as the default gateway for its locally connected hosts, all sharing the same gateway IP and MAC address across the fabric. This enables optimal local routing, supports seamless VM mobility, and is the recommended model for most deployments.
+**Distributed Anycast Gateway (DAG)** — every VTEP acts as the default gateway for its locally connected hosts, all sharing the same gateway IP and MAC address across the fabric. This enables optimal local routing, supports seamless VM mobility, and is the recommended model for most deployments. The key insight is that because every VTEP advertises the same SVI address, a host always has a local gateway regardless of which VTEP it is connected to. In the example below, Server-East1 and Server-West both use 10.0.1.1 as their default gateway for VLAN 12, when they need to reach each other, traffic is bridged directly across L2 VNI 6502 without any routing needed. However, when Server-East1 or Server-West need to reach Server-East2 (VLAN 13), the local VTEP performs the routing decision using its SVI, no traffic needs to travel to a central gateway first.
 
 ![VXLAN-IRB-DAG]({{ site.baseurl }}/assets/VXLAN-IRB-DAG.png)
 
