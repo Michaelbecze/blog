@@ -27,6 +27,8 @@ In Symmetric IRB, both the ingress and egress VTEPs perform both routing and bri
 
 Because both sides perform routing, return traffic uses the same L3VNI path, making the forwarding behavior symmetric. 
 
+![VXLAN-IRB-AS]({{ site.baseurl }}/assets/VXLAN-IRB-SYM.png)
+
 ---
 ## Gateway Modles
 There a 2 modles that are used when it comes to where the L3 Gateway should be for each subenet in the EVPN VXLAN Fabric:
