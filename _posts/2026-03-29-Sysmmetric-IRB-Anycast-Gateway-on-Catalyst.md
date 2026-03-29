@@ -209,7 +209,13 @@ Interface VNI      Peer-IP                                 Num routes eVNI     U
 nve1      10100    10.0.255.201                            7          10100    1d04h
 ```
 
-**show l2vpn evpn evi 1 detail** This is one of the most useful verification commands because it shows how the L2 and L3 VNIs are tied together for symmetric IRB.
+**show l2vpn evpn evi 1 detail** This is one of the most useful verification commands because it shows how the L2 and L3 VNIs are tied together for symmetric IRB. 
+Important fields:
+- L2 VNI: 10100 (host VLAN)
+- L3 VNI: 5000 (routing VNI)
+- Core If: Vlan200 (L3 transit SVI)
+- Access If: Vlan100 (host-facing VLAN)
+- IPv4 IRB: Enabled
 ```
 East-SW1#show l2vpn evpn evi 1 detail
 EVPN instance:          1 (VLAN Based)
@@ -260,7 +266,7 @@ Valid Default Gateway Address                 EVI   VLAN  MAC Address    Source
   Y   192.168.101.1                           2     101   5254.009c.f85d Vl101
 
 ```
-**show ip route vrf north** Lastly, lets take a look at the route table for vrf north to show that routes are in fact being poplutaed via EVPN. 
+**show ip route vrf north** Lastly, lets take a look at the route table for vrf "north" to show that routes are in fact being poplutaed via EVPN. 
 
 ```
 East-SW1#show ip route vrf north
