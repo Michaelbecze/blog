@@ -4,19 +4,20 @@ In this post, we will walk through a practical example of Symmetric Integrated R
 
 ## Lab Topology
 
-This is a very simple setup with 2 Switches and a couple of host attached. However IRB can get complicated very quickly so I thought this would be the best way to start off. 
+This is a very simple topology consisting of two switches and several attached hosts. IRB can become complex quickly, so starting with a minimal design helps build a solid understanding of the control-plane behavior.
+Two Catalyst switches form a VXLAN EVPN fabric. Each switch has a loopback interface used as the EVPN router-id, VTEP source interface, and addressing for VLAN 200. OSPF provides reachability between loopbacks in the underlay network.
+VLAN 200 acts as the L3 transit segment enabling symmetric IRB. VLAN 100 is configured as an Anycast gateway on both switches, sharing the same IP address.
 
 ![VXLAN-IRB-SYM]({{ site.baseurl }}/assets/VXLAN-Symmetric-IRB.png)
 - **WEST-sw1:**
-  - **Lo1:** `10.0.255.201`
-  - **VLAN 200** `10.0.255.201`
-  - **VALN 100** `192.168.100.1`
+  - **Lo1:** `10.0.255.201` 
+  - **VLAN 200** `10.0.255.201` -- VNI 5000 (L3 Transit)
+  - **VALN 100** `192.168.100.1` -- VNI 10100
 - **EAST-sw1:**
   - **Lo1:** `10.0.255.200`
-  - **VLAN 200** `10.0.255.200`
-  - **VALN 100** `192.168.100.1`
-  - **VALN 101** `192.168.101.1`
-
-- **East-Host1:** `192.168.100.5`-- VLan 100
-- **East-Host2:** `192.168.101.5` -- VLan 101
-- **West-Host1:** `192.168.100.6` -- VLan 100
+  - **VLAN 200** `10.0.255.200` -- VNI 5000 (L3 Transit)
+  - **VALN 100** `192.168.100.1` -- VNI 10100
+  - **VALN 101** `192.168.101.1` -- VNI 10101
+- **East-Host1:** `192.168.100.5`-- Vlan 100
+- **East-Host2:** `192.168.101.5` -- Vlan 101
+- **West-Host1:** `192.168.100.6` -- Vlan 100
