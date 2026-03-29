@@ -194,6 +194,8 @@ To make the control-plane behavior concrete, here is what happens when West-Host
 
 The return path is symmetric: EAST-sw1 encapsulates return traffic using VNI 5000 back to WEST-sw1. This is what distinguishes symmetric IRB from asymmetric IRB — both directions use the L3 VNI, so each VTEP only needs to hold the routes for its own local subnets plus whatever is advertised via BGP.
 
+![VXLAN-IRB-SYM]({{ site.baseurl }}/assets/Copy of Copy of VXLAN-IRB-lab.drawio.png)
+
 ## verify
 
 Here are a couple of show commands to verify that everything is up and work, lastly dont forget to do those ping test!
