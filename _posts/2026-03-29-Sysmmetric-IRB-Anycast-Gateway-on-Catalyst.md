@@ -142,6 +142,7 @@ interface nve1
 
 ### Anycast Gateway SVI
 
+Both switches share the same IP address. Because EVPN advertises the gateway MAC/IP combination, hosts can use the same default gateway regardless of which switch they connect to.
 
 ```
 interface Vlan100
