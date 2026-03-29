@@ -1,6 +1,15 @@
 ## Symmetric IRB with an Anycast Gateway using VXLAN EVPN
 
-In this post, we will walk through a practical example of Symmetric Integrated Routing and Bridging (IRB) using an Anycast Gateway. I have already made a previous post about IRB, [link here](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html), so I am not going to go over the mechanism again. This design allows hosts to maintain a consistent default gateway regardless of where they are connected, while still enabling routed communication between subnets across the VXLAN fabric. For this lab we will create a Transit VNI that allows for symmetric IRB. In addition, I will include an L2 VNI to show how the two can be used side by side on the same VTEP.
+In this post, we walk through a practical configuration of **Symmetric Integrated Routing and Bridging (IRB)** using an **Anycast Gateway** in a VXLAN EVPN fabric. If you are new to IRB, I previously covered the forwarding mechanics in detail [here](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html), so this article focuses primarily on implementation.
+
+Symmetric IRB allows hosts to use the same default gateway IP and MAC address regardless of which leaf switch they are connected to, while still enabling inter-subnet routing across the fabric. To accomplish this, we introduce a **Transit VNI (L3 VNI)** that carries routed traffic between VTEPs.
+
+In this lab, we configure both:
+
+* an **L3 VNI** for symmetric IRB routing
+* an **L2 VNI** for traditional bridged connectivity
+
+This demonstrates how Layer 2 and Layer 3 VXLAN services can coexist on the same VTEP.
 
 ## Lab Topology
 
