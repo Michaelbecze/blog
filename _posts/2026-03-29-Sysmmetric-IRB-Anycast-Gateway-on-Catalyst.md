@@ -1,35 +1,38 @@
 ## Symmetric IRB with an Anycast Gateway using VXLAN EVPN
 
-In this post, we will walk through a practical example of Symmetric Integrated Routing and Bridging (IRB) using an Anycast Gateway. I have already made a previous post about IRB, [link here](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html) so I am not going to go over the mechanism again. This design allows hosts to maintain a consistent default gateway regardless of where they are connected, while still enabling routed communication between subnets across the VXLAN fabric. For this Lab we will create a Transit VNI that allows for sysmmtric IRB, in additon I will include an L2 VNI to show how the 2 can be used side by side on the same VTEP. 
+In this post, we will walk through a practical example of Symmetric Integrated Routing and Bridging (IRB) using an Anycast Gateway. I have already made a previous post about IRB, [link here](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html), so I am not going to go over the mechanism again. This design allows hosts to maintain a consistent default gateway regardless of where they are connected, while still enabling routed communication between subnets across the VXLAN fabric. For this lab we will create a Transit VNI that allows for symmetric IRB. In addition, I will include an L2 VNI to show how the two can be used side by side on the same VTEP.
 
 ## Lab Topology
 
 This is a very simple topology consisting of two switches and several attached hosts. IRB can become complex quickly, so starting with a minimal design helps build a solid understanding of the control-plane behavior.
+
 Two Catalyst switches form a VXLAN EVPN fabric. Each switch has a loopback interface used as the EVPN router-id, VTEP source interface, and addressing for VLAN 200. OSPF provides reachability between loopbacks in the underlay network.
-VLAN 200 acts as the L3 transit segment enabling symmetric IRB. VLAN 100 is configured as an Anycast gateway on both switches, sharing the same IP address.
+
+VLAN 200 acts as the L3 transit segment enabling symmetric IRB. VLAN 100 is configured as an Anycast gateway on both switches, sharing the same IP address and the same virtual MAC address.
 
 ![VXLAN-IRB-SYM]({{ site.baseurl }}/assets/VXLAN-Symmetric-IRB.png)
+
 - **WEST-sw1:**
-  - **Lo1:** `10.0.255.201` 
-  - **VLAN 200** `10.0.255.201` -- VNI 5000 (L3 Transit)
-  - **VALN 100** `192.168.100.1` -- VNI 10100
+  - **Lo1:** `10.0.255.201`
+  - **VLAN 200:** `10.0.255.201` — VNI 5000 (L3 Transit)
+  - **VLAN 100:** `192.168.100.1` — VNI 10100
 - **EAST-sw1:**
   - **Lo1:** `10.0.255.200`
-  - **VLAN 200** `10.0.255.200` -- VNI 5000 (L3 Transit)
-  - **VALN 100** `192.168.100.1` -- VNI 10100
-  - **VALN 101** `192.168.101.1` -- VNI 10101
-- **East-Host1:** `192.168.100.5`-- Vlan 100
-- **East-Host2:** `192.168.101.5` -- Vlan 101
-- **West-Host1:** `192.168.100.6` -- Vlan 100
+  - **VLAN 200:** `10.0.255.200` — VNI 5000 (L3 Transit)
+  - **VLAN 100:** `192.168.100.1` — VNI 10100
+  - **VLAN 101:** `192.168.101.1` — VNI 10101
+- **East-Host1:** `192.168.100.5` — VLAN 100
+- **East-Host2:** `192.168.101.5` — VLAN 101
+- **West-Host1:** `192.168.100.6` — VLAN 100
 
 ## OSPF Underlay
 
 The underlay network is responsible for providing IP reachability between VTEPs. In this example, OSPF is used to advertise loopback interfaces between the two switches.
 
 Each switch uses Loopback1 as:
-* BGP router-id
-* EVPN peering source
-* L3 transit addressing reference for Vlan 200
+- BGP router-id
+- EVPN peering source
+- L3 transit addressing reference for VLAN 200
 
 ```
 interface Loopback1
@@ -47,16 +50,19 @@ router ospf 1
 
 ## VRF Definition
 
-VRFs are used to separate tenant routing information from the global routing table. They become especially important in a VXLAN fabric when segmentation or multi-tenancy is required. This is a large topic but let quickly go over the function of RDs, Route Tagets, and Stitching,
+VRFs are used to separate tenant routing information from the global routing table. They become especially important in a VXLAN fabric when segmentation or multi-tenancy is required. Let's quickly go over the function of RDs, Route Targets, and Stitching.
 
-### RD
-The Route Distinguisher ensures routes inside the VRF remain unique when advertised via MP-BGP.
+### Route Distinguisher (RD)
+
+The Route Distinguisher ensures routes inside the VRF remain unique when advertised via MP-BGP. Without an RD, two VTEPs advertising the same prefix (e.g., `192.168.100.0/24`) would be indistinguishable in the BGP table.
 
 ### Route Targets
-Route targets control import/export policy between VTEPs. For this example "East-sw1" is originating 103:2 and will only accept routes from 104:2 (West-sw1). This allows very granular control over which routing information is shared between tenants or between different parts of the fabric.
 
-### Route Target Stiching
-Stitching allows L3 routes to be properly exchanged between VRFs using EVPN Type-5 routes. This is essential for the L3 VXLAN tranisit to work. This this design vlan 100 and 101 will be advertised as type-5 routes. 
+Route targets control import/export policy between VTEPs. In this example, EAST-sw1 exports routes tagged with `103:2` and only imports routes tagged with `104:2`. This means WEST-sw1 must export its routes with `104:2` for EAST-sw1 to accept them, and vice versa. This asymmetric design gives you granular control over which routing information is shared between tenants or between different parts of the fabric.
+
+### Route Target Stitching
+
+Stitching allows L3 routes to be properly exchanged between VRFs using EVPN Type-5 routes. This is essential for the L3 VXLAN transit to work. In this design, VLAN 100 and VLAN 101 will be advertised as Type-5 routes.
 
 ```
 vrf definition north
@@ -70,9 +76,9 @@ vrf definition north
  exit-address-family
 ```
 
-## MP-BGP EVPN 
+## MP-BGP EVPN
 
-Lets bring up mp-bgp evpn. We enable both global EVPN and VRF-specific route exchange.
+Next we bring up MP-BGP EVPN. We enable both global EVPN and VRF-specific route exchange.
 
 ```
 router bgp 65001
@@ -95,9 +101,9 @@ router bgp 65001
  exit-address-family
 ```
 
-## Enable L2vpn evpn
+## Enable L2VPN EVPN
 
-We introduce a new command here: `default-gateway advertise`. This ensures the Anycast gateway MAC and IP are advertised via EVPN Type-2 routes. Without this command, remote VTEPs would learn host MAC/IP bindings but would not learn the Anycast gateway information, preventing hosts from using the local VTEP as their default gateway.
+We introduce a key command here: `default-gateway advertise`. This ensures the Anycast gateway MAC and IP are advertised via EVPN Type-2 routes. Without this command, remote VTEPs would learn host MAC/IP bindings but would not learn the Anycast gateway information, preventing hosts from using the local VTEP as their default gateway.
 
 ```
 l2vpn evpn
@@ -107,11 +113,11 @@ l2vpn evpn
 
 Next, we map VLANs to VNIs. It is important to understand the difference between the configuration of VLAN 100 and VLAN 200.
 
-VLAN 100 is configured as a traditional Layer 2 segment and is associated with an EVPN instance. This tells the switch that MAC address learning and host reachability information for this VLAN should be advertised using EVPN. VLAN 200, however, is not associated with an EVPN instance. Instead, it is mapped directly to a VNI that acts as the Layer 3 transit VNI used for symmetric IRB routing.
+VLAN 100 is configured as a traditional Layer 2 segment and is associated with an EVPN instance. This tells the switch that MAC address learning and host reachability information for this VLAN should be advertised using EVPN.
 
-Although VLAN 200 is still technically a VLAN, in this design it represents the L3 VNI that interconnects routing tables between VTEPs rather than a user-facing broadcast domain.
+VLAN 200, however, is not associated with an EVPN instance. Instead, it is mapped directly to a VNI that acts as the Layer 3 transit VNI used for symmetric IRB routing. Although VLAN 200 is still technically a VLAN, in this design it represents the L3 VNI that interconnects routing tables between VTEPs rather than a user-facing broadcast domain.
 
-This distinction can feel unintuitive at first because both segments are configured under vlan configuration, yet they serve very different roles in the VXLAN fabric:
+This distinction can feel unintuitive at first because both segments are configured under VLAN configuration, yet they serve very different roles in the VXLAN fabric.
 
 ```
 l2vpn evpn instance 1 vlan-based
@@ -126,33 +132,38 @@ vlan configuration 200
 
 ## Configure NVE Interface
 
-The NVE interface provides VXLAN encapsulation and uses BGP EVPN for control-plane learning. Thankfully there is nothing new here with the exceptio of out L3 VNI being added in the correct vrf "north." 
+The NVE interface provides VXLAN encapsulation and uses BGP EVPN for control-plane learning. The only addition compared to a basic L2 VXLAN configuration is the L3 VNI bound to VRF `north`.
+
+> **Note:** The `source-interface` must match the loopback used for OSPF and BGP peering — `Loopback1` in this lab.
 
 ```
 interface nve1
  no ip address
- source-interface Loopback0
+ source-interface Loopback1
  host-reachability protocol bgp
  member vni 10100 ingress-replication
- member vni 5000 vrf north
  member vni 10101 ingress-replication
+ member vni 5000 vrf north
 ```
 
-## SVI's
+## SVIs
 
 ### Anycast Gateway SVI
 
-Both switches share the same IP address. Because EVPN advertises the gateway MAC/IP combination, hosts can use the same default gateway regardless of which switch they connect to.
+Both switches share the same IP address **and the same virtual MAC address**. Configuring a static MAC ensures that hosts see a consistent gateway MAC regardless of which VTEP they are connected to. Without a shared MAC, ARP responses from different VTEPs would carry different source MACs, causing traffic to be sent to the wrong VTEP after a host moves.
+
+Because EVPN advertises the gateway MAC/IP combination via Type-2 routes, remote VTEPs learn the gateway binding and can forward traffic correctly.
 
 ```
 interface Vlan100
  vrf forwarding north
  ip address 192.168.100.1 255.255.255.0
+ mac-address <anycast-mac>
 ```
 
 ### L3 Transit SVI
 
-This is out tranit vlan that is mapped to vni 5000 and is Used internally for symmetric routing.
+This is our transit VLAN, mapped to VNI 5000. It is used internally for symmetric routing between VTEPs and is not a user-facing segment. Using `ip unnumbered Loopback1` avoids allocating a separate subnet for this transit link. `no autostate` ensures the SVI stays up even when no access ports are active in VLAN 200.
 
 ```
 interface Vlan200
@@ -161,3 +172,15 @@ interface Vlan200
  ip unnumbered Loopback1
  no autostate
 ```
+
+## Traffic Flow: Symmetric IRB
+
+To make the control-plane behavior concrete, here is what happens when West-Host1 (`192.168.100.6`) sends traffic to East-Host2 (`192.168.101.5`):
+
+1. West-Host1 ARPs for its default gateway (`192.168.100.1`). WEST-sw1 responds with the Anycast gateway MAC.
+2. West-Host1 sends the frame to WEST-sw1. WEST-sw1 recognizes the destination IP is in a different subnet and routes the packet within VRF `north`.
+3. WEST-sw1 looks up `192.168.101.0/24` in VRF `north`. It was learned as a Type-5 route from EAST-sw1 via MP-BGP EVPN.
+4. WEST-sw1 encapsulates the packet in VXLAN using the **L3 VNI (5000)** and sends it to EAST-sw1's VTEP IP.
+5. EAST-sw1 decapsulates the packet, looks up the destination in VRF `north`, and forwards it out the VLAN 101 SVI to East-Host2.
+
+The return path is symmetric: EAST-sw1 encapsulates return traffic using VNI 5000 back to WEST-sw1. This is what distinguishes symmetric IRB from asymmetric IRB — both directions use the L3 VNI, so each VTEP only needs to hold the routes for its own local subnets plus whatever is advertised via BGP.
