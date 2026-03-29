@@ -249,7 +249,7 @@ EVPN instance:          1 (VLAN Based)
       10.0.255.201
         Routes: 3 MAC, 3 MAC/IP, 1 IMET, 0 EAD
 ```
-**show l2vpn evpn default-gateway** here we see both our anycast gateways and the svi for vlan 101
+**show l2vpn evpn default-gateway** Here we see both our anycast gateways and the svi for vlan 101.
 
 ```
 East-SW1#show l2vpn evpn default-gateway
