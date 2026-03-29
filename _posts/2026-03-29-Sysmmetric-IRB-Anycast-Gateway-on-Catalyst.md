@@ -123,3 +123,40 @@ vlan configuration 100
 vlan configuration 200
  member vni 5000
 ```
+
+## Configure NVE Interface
+
+The NVE interface provides VXLAN encapsulation and uses BGP EVPN for control-plane learning. Thankfully there is nothing new here with the exceptio of out L3 VNI being added in the correct vrf "north." 
+
+```
+interface nve1
+ no ip address
+ source-interface Loopback0
+ host-reachability protocol bgp
+ member vni 10100 ingress-replication
+ member vni 5000 vrf north
+ member vni 10101 ingress-replication
+```
+
+## SVI's
+
+### Anycast Gateway SVI
+
+
+```
+interface Vlan100
+ vrf forwarding north
+ ip address 192.168.100.1 255.255.255.0
+```
+
+### L3 Transit SVI
+
+This is out tranit vlan that is mapped to vni 5000 and is Used internally for symmetric routing.
+
+```
+interface Vlan200
+ description CORE-SVI L3
+ vrf forwarding north
+ ip unnumbered Loopback1
+ no autostate
+```
