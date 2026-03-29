@@ -4,7 +4,16 @@ In this post, we will walk through a practical example of Symmetric Integrated R
 
 ## Lab Topology
 
-![VXLAN-IRB-SYM]({{ site.baseurl }}/assets/VXLAN-Symmetric-IRB.png)
-
 This is a very simple setup with 2 Switches and a couple of host attached. However IRB can get complicated very quickly so I thought this would be the best way to start off. 
+
+![VXLAN-IRB-SYM]({{ site.baseurl }}/assets/VXLAN-Symmetric-IRB.png)
+- **WEST-sw1:**
+  - **Lo1:** `10.0.255.201`
+  - **VLAN 200 `10.0.255.201`
+- **EAST-sw1:**
+  - **Lo1:** `10.0.255.200`
+  - - **VLAN 200 `10.0.255.200`
+
+- **Host-A:** `192.168.1.100`
+- **Host-B:** `192.168.1.101`
 
