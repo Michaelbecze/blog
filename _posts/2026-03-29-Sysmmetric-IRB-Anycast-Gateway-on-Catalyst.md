@@ -299,3 +299,5 @@ C        192.168.101.0/24 is directly connected, Vlan101
 L        192.168.101.1/32 is directly connected, Vlan101
 East-SW1#
 ```
+### Download the CML Lab file:
+[Download](https://github.com/Michaelbecze/CML-Labs/blob/main/L3-VXLAN-Sysmmetric-IRB.yaml)
