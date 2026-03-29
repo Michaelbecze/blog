@@ -9,11 +9,14 @@ This is a very simple setup with 2 Switches and a couple of host attached. Howev
 ![VXLAN-IRB-SYM]({{ site.baseurl }}/assets/VXLAN-Symmetric-IRB.png)
 - **WEST-sw1:**
   - **Lo1:** `10.0.255.201`
-  - **VLAN 200 `10.0.255.201`
+  - **VLAN 200** `10.0.255.201`
+  - **VALN 100** `192.168.100.1`
 - **EAST-sw1:**
   - **Lo1:** `10.0.255.200`
-  - - **VLAN 200 `10.0.255.200`
+  - **VLAN 200** `10.0.255.200`
+  - **VALN 100** `192.168.100.1`
+  - **VALN 101** `192.168.101.1`
 
-- **Host-A:** `192.168.1.100`
-- **Host-B:** `192.168.1.101`
-
+- **East-Host1:** `192.168.100.5`-- VLan 100
+- **East-Host2:** `192.168.101.5` -- VLan 101
+- **West-Host1:** `192.168.100.6` -- VLan 100
