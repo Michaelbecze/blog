@@ -184,3 +184,112 @@ To make the control-plane behavior concrete, here is what happens when West-Host
 5. EAST-sw1 decapsulates the packet, looks up the destination in VRF `north`, and forwards it out the VLAN 101 SVI to East-Host2.
 
 The return path is symmetric: EAST-sw1 encapsulates return traffic using VNI 5000 back to WEST-sw1. This is what distinguishes symmetric IRB from asymmetric IRB — both directions use the L3 VNI, so each VTEP only needs to hold the routes for its own local subnets plus whatever is advertised via BGP.
+
+## verify
+
+Here are a couple of show commands to verify that everything is up and work, lastly dont forget to do those ping test!
+
+
+**show nve peers:** This command verifies that VXLAN tunnel endpoints (VTEPs) have successfully formed adjacencies. Notice that we see both an **L2 VNI peer** and an **L3 VNI peer**, confirming that both bridging and routing VNIs are operational.
+```
+East-SW1#show nve peers 
+'M' - MAC entry download flag  'A' - Adjacency download flag
+'4' - IPv4 flag  '6' - IPv6 flag
+
+Interface  VNI      Type Peer-IP          RMAC/Num_RTs   eVNI     state flags UP time
+nve1       5000     L3CP 10.0.255.201     5254.000d.cc73 5000       UP  A/M/4 05:07:46
+nve1       10100    L2CP 10.0.255.201     7              10100      UP   N/A  1d04h
+```
+**show l2vpn evpn peers vxlan **
+```
+East-SW1#show l2vpn evpn peers vxlan 
+
+Interface VNI      Peer-IP                                 Num routes eVNI     UP time
+--------- -------- --------------------------------------- ---------- -------- --------
+nve1      10100    10.0.255.201                            7          10100    1d04h
+```
+
+**show l2vpn evpn evi 1 detail** This is one of the most useful verification commands because it shows how the L2 and L3 VNIs are tied together for symmetric IRB.
+```
+East-SW1#show l2vpn evpn evi 1 detail
+EVPN instance:          1 (VLAN Based)
+  RD:                   10.0.255.200:1 (auto)
+  Import-RTs:           65001:1 
+  Export-RTs:           65001:1 
+  Per-EVI Label:        none
+  State:                Established
+  Replication Type:     Ingress
+  Encapsulation:        vxlan
+  IP Local Learn:       Enabled (global)
+  Adv. Def. Gateway:    Enabled (global)
+  Re-originate RT5:     Disabled
+  Adv. Multicast:       Disabled (global)
+  AR Flood Suppress:    Enabled (global)
+  Vlan:                 100
+    Protected:          False
+    Ethernet-Tag:       0
+    State:              Established
+    Flood Suppress:     Attached
+    Core If:            Vlan200
+    Access If:          Vlan100
+    NVE If:             nve1
+    RMAC:               5254.009c.f87e
+    Core Vlan:          200
+    L2 VNI:             10100
+    L3 VNI:             5000
+    VTEP IP:            10.0.255.200
+    Originating Router: 10.0.255.200
+    VRF:                north
+    IPv4 IRB:           Enabled
+    IPv6 IRB:           Disabled
+    Pseudoports:
+      GigabitEthernet1/0/1 service instance 100
+        Routes: 2 MAC, 2 MAC/IP
+    Peers:
+      10.0.255.201
+        Routes: 3 MAC, 3 MAC/IP, 1 IMET, 0 EAD
+```
+**show l2vpn evpn default-gateway** here we see both our anycast gateways and the svi for vlan 101
+
+```
+East-SW1#show l2vpn evpn default-gateway
+Valid Default Gateway Address                 EVI   VLAN  MAC Address    Source
+----- --------------------------------------- ----- ----- -------------- -----------
+  Y   192.168.100.1                           1     100   aaaa.bbbb.cccc Vl100
+  Y   192.168.100.1                           1     100   aaaa.bbbb.cccc 10.0.255.201
+  Y   192.168.101.1                           2     101   5254.009c.f85d Vl101
+
+```
+**show ip route vrf north** Lastly, lets take a look at the route table for vrf north to show that routes are in fact being poplutaed via EVPN. 
+
+```
+East-SW1#show ip route vrf north
+
+Routing Table: north
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, m - OMP
+       n - NAT, Ni - NAT inside, No - NAT outside, Nd - NAT DIA
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       H - NHRP, G - NHRP registered, g - NHRP registration summary
+       o - ODR, P - periodic downloaded static route, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
+       & - replicated local route overrides by connected
+
+Gateway of last resort is not set
+
+      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        10.100.100.0/24 is directly connected, GigabitEthernet1/0/4
+L        10.100.100.1/32 is directly connected, GigabitEthernet1/0/4
+      192.168.100.0/24 is variably subnetted, 3 subnets, 2 masks
+C        192.168.100.0/24 is directly connected, Vlan100
+L        192.168.100.1/32 is directly connected, Vlan100
+B        192.168.100.6/32 [200/0] via 10.0.255.201, 05:06:39, Vlan200
+      192.168.101.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.101.0/24 is directly connected, Vlan101
+L        192.168.101.1/32 is directly connected, Vlan101
+East-SW1#
+```
