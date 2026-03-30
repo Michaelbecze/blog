@@ -187,10 +187,10 @@ interface Vlan200
 To make the control-plane behavior concrete, here is what happens when West-Host1 (`192.168.100.6`) sends traffic to East-Host2 (`192.168.101.5`):
 
 1. West-Host1 ARPs for its default gateway (`192.168.100.1`). WEST-sw1 responds with the Anycast gateway MAC.
-2. West-Host1 sends the frame to WEST-sw1. WEST-sw1 recognizes the destination IP is in a different subnet and routes the packet within VRF `north`.
-3. WEST-sw1 looks up `192.168.101.0/24` in VRF `north`. It was learned as a Type-5 route from EAST-sw1 via MP-BGP EVPN.
-4. WEST-sw1 encapsulates the packet in VXLAN using the **L3 VNI (5000)** and sends it to EAST-sw1's VTEP IP.
-5. EAST-sw1 decapsulates the packet, looks up the destination in VRF `north`, and forwards it out the VLAN 101 SVI to East-Host2.
+2. West-Host1 sends the frame to West-sw1. West-sw1 recognizes the destination IP is in a different subnet and routes the packet within VRF `north`.
+3. West-sw1 looks up `192.168.101.0/24` in VRF `north`. It was learned as a Type-5 route from East-sw1 via MP-BGP EVPN.
+4. West-sw1 encapsulates the packet in VXLAN using the **L3 VNI (5000)** and sends it to East-sw1's VTEP IP.
+5. East-sw1 decapsulates the packet, looks up the destination in VRF `north`, and forwards it out the VLAN 101 SVI to East-Host2.
 
 The return path is symmetric: EAST-sw1 encapsulates return traffic using VNI 5000 back to WEST-sw1. This is what distinguishes symmetric IRB from asymmetric IRB — both directions use the L3 VNI, so each VTEP only needs to hold the routes for its own local subnets plus whatever is advertised via BGP.
 
