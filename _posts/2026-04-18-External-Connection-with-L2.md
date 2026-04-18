@@ -45,7 +45,7 @@ interface Ethernet0/0
  ip ospf 1 area 0
 ```
 
-The spines peer with all three leaves and are configured as BGP route reflectors — they activate only the `l2vpn evpn` address family and reflect EVPN routes with extended communities intact.
+The spines peer with all three leaves and are configured as BGP route reflectors — they activate only the `l2vpn evpn` address family and reflect EVPN routes with extended communities.
 
 ---
 
