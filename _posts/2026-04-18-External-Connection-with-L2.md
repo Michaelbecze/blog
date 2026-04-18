@@ -30,5 +30,109 @@ The real action is on the Border Gateway (bgw). This node is where the VXLAN fab
 ---
 
 ## The BGW
+I have covered in my other post how to set up VXLAN, both l2 and l3 so I dont want to go over that again. If you would like to brush up on that you can visit [Intergrated Routing And Bridgeing In L3vxlan](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html)) and [Sysmmetric Irb Anycast Gateway On Catalyst](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html). 
 
-The Boarder gateway is the critacal piece of this lab as it is what hands of the VXLAN fabric into a firewall. I have covered in my other post how to set up VXLAN, both l2 and l3 so I dont want to go over that again. If you would like to brush up on that you can visit[Intergrated Routing And Bridgeing In L3vxlan](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html)) and [Sysmmetric Irb Anycast Gateway On Catalyst](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html)
+
+We have 2 sperate reachability methods that are going on over a simple **switchport trunk**. There is a routed vlan 900 that carries all the Internet traffic and then there are stretch vlans for the secured host that must go through the firewall. The link between the BGW and the firewall is very simple. On the BGW side it is a simple trunk and then on the Firewall side it is routed sub interfaces. I am just using a router with ACL as a Firefwall of this example.
+
+#### BGW
+```
+interface Ethernet0/2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+```
+#### FW
+```
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ ip access-group secured in
+ ip nat inside
+!
+interface GigabitEthernet0/0.11
+ encapsulation dot1Q 11
+ ip address 192.168.11.1 255.255.255.0
+ ip access-group secured in
+ ip nat inside
+!
+interface GigabitEthernet0/0.900
+ encapsulation dot1Q 900
+ ip address 10.90.0.2 255.255.255.252
+ ip nat inside
+```
+
+---
+
+### L3 Handoff — VLAN 900 SVI and eBGP
+
+VLAN 900 is a small `/30` point-to-point segment between bgw and the firewall. It lives inside VRF `core` so the eBGP session runs entirely within the tenant routing domain and never touches the global table.
+
+```
+interface Vlan900
+ vrf forwarding core
+ ip address 10.90.0.1 255.255.255.252
+ no autostate
+```
+
+`no autostate` ensures the SVI stays up even if no physical ports are active in VLAN 900, important because the only port in this VLAN is the trunk to the firewall, and you don't want a brief link flap to pull down the eBGP session.
+
+#### The eBGP Session
+
+The firewall (`10.90.0.2`) is in AS 65002. The eBGP session is configured under the VRF `core` address family so routes learned from the firewall are installed directly into VRF `core` and immediately redistributable as EVPN Type-5 to the rest of the fabric.
+
+```
+router bgp 65001
+ !
+ address-family ipv4 vrf core
+  advertise l2vpn evpn
+  network 10.90.0.0 mask 255.255.255.252
+  neighbor 10.90.0.2 remote-as 65002
+  neighbor 10.90.0.2 activate
+ exit-address-family
+```
+
+A few things worth noting here. The `advertise l2vpn evpn` line is what causes routes learned from the firewall to be re-advertised into the EVPN control plane as Type-5 prefixes — without it, those routes would be locally installed on bgw but invisible to the rest of the fabric. The `network` statement advertises the handoff subnet itself so the firewall has a return path. In production you would also typically add `default-information originate` on the firewall side (or a static default toward the fabric) so a default route propagates inward.
+
+#### VLAN-to-VNI Mapping for VLAN 900
+
+VLAN 900 also needs a VNI so it can be carried across the fabric if needed:
+
+```
+vlan configuration 900
+ member evpn-instance 5 vni 10900
+```
+
+And the NVE interface includes it:
+
+```
+interface nve1
+ member vni 10900 ingress-replication
+```
+
+---
+
+### L2 Extension — Secured VLANs on the Trunk
+
+For the secured hosts, no SVI or routing is configured on bgw for VLANs 10 and 11. The VLANs are simply extended from the VXLAN fabric across the trunk to the firewall. The firewall itself holds the SVIs for `192.168.10.1` and `192.168.11.1` and acts as the gateway.
+
+On bgw, the EVPN instances for VLANs 10 and 11 are configured normally (the fabric still needs to carry MAC/IP reachability for those hosts), but there are no local SVIs routing traffic for those subnets:
+
+```
+l2vpn evpn instance 3 vlan-based
+ encapsulation vxlan
+!
+l2vpn evpn instance 4 vlan-based
+ encapsulation vxlan
+!
+vlan configuration 10
+ member evpn-instance 3 vni 10010
+!
+vlan configuration 11
+ member evpn-instance 4 vni 10011
+```
+
+When a secured host sends traffic, it arrives at the leaf (sw-1 or sw-2) via VXLAN, gets forwarded to bgw as a bridged L2 frame, and exits the trunk on the appropriate VLAN toward the firewall. The firewall routes it, applies policy, and sends it onward. There is no symmetric IRB path for these hosts — the firewall is the single choke point by design.
+
+---
+
+
