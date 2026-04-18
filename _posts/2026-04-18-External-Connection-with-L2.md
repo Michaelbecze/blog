@@ -8,8 +8,6 @@ For this lab i have created a classic spine leaf topology with two spines that a
 
 ![VXLAN-EX-l2]({{ site.baseurl }}/assets/external-connection-l2.png)
 
-The fabric is a classic spine-leaf design: two spines (`Spine-1` at `10.1.255.1`, `Spine-2` at `10.1.255.2`) act as BGP route reflectors with no VXLAN awareness of their own. Three leaf switches hang below them.
-
 | Device | Loopback1 | Loopback100 | VLANs / VNIs |
 |---|---|---|---|
 | **sw-1** | 10.1.255.3 | 10.100.255.3 | VLAN 10 → VNI 10010, VLAN 20 → VNI 10020, VLAN 100 → VNI 10100 (L3) |
