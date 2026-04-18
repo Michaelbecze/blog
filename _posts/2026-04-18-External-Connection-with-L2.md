@@ -6,3 +6,4 @@ There are alot of different ways to bring in external connections into a VXLAN f
 
 For this lab i have created a classic spine leaf topology with 2 host in different subnets that are protected and use the firewall as a gateway and to hosts that are interanl and use the Distributed gateway. 
 
+![VXLAN-EX-l2]({{ site.baseurl }}/assets/external-connection-l2.png)
