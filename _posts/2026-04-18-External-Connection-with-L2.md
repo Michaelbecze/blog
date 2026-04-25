@@ -115,6 +115,9 @@ router bgp 65002
 VLAN 900 also needs a VNI so it can be carried across the fabric if needed:
 
 ```
+l2vpn evpn instance 5 vlan-based
+ encapsulation vxlan
+
 vlan configuration 900
  member evpn-instance 5 vni 10900
 ```
