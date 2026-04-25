@@ -29,7 +29,7 @@ The real action is on the Border Gateway (bgw). This node is where the VXLAN fab
 
 ---
 
-## The BGW
+## The Interfaces
 I have covered in my other post how to set up VXLAN, both l2 and l3 so I dont want to go over that again. If you would like to brush up on that you can visit [Intergrated Routing And Bridgeing In L3vxlan](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html)) and [Sysmmetric Irb Anycast Gateway On Catalyst](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html). 
 
 
