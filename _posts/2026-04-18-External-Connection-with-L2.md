@@ -29,7 +29,7 @@ The real action is on the Border Gateway (bgw). This node is where the VXLAN fab
 
 ---
 
-## The Interfaces
+### The Interfaces
 I have covered in my other post how to set up VXLAN, both l2 and l3 so I dont want to go over that again. If you would like to brush up on that you can visit [Intergrated Routing And Bridgeing In L3vxlan](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html)) and [Sysmmetric Irb Anycast Gateway On Catalyst](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html). 
 
 
@@ -64,7 +64,6 @@ interface GigabitEthernet0/0.900
 ---
 
 ### L3 Handoff — VLAN 900 SVI and eBGP
-
 VLAN 900 is a small `/30` point-to-point segment between bgw and the firewall. It lives inside VRF `core` so the eBGP session runs entirely within the tenant routing domain and never touches the global table. Here is the configuration of the VRF and the interface vlan 900. Remember that we need to use the keyword "stiching" to export and import our routes into evpn on the ios xe platform.
 
 ```
@@ -88,8 +87,7 @@ interface Vlan900
 `no autostate` ensures the SVI stays up even if no physical ports are active in VLAN 900.
 
 #### The eBGP Session
-
- The eBGP session on the BGW is configured under the VRF `core` address family so routes learned from the firewall are installed directly into VRF `core` and immediately redistributable as EVPN Type-5 to the rest of the fabric. The Firewall BGP seesion is very simple, we have a single neighbor and our advertising a default route down into the vxlan fabric. One thing worth noting here. The `advertise l2vpn evpn` line is what causes routes learned from the firewall to be re-advertised into the EVPN control plane as Type-5 prefixes — without it, those routes would be locally installed on bgw but invisible to the rest of the fabric. 
+The eBGP session on the BGW is configured under the VRF `core` address family so routes learned from the firewall are installed directly into VRF `core` and immediately redistributable as EVPN Type-5 to the rest of the fabric. The Firewall BGP seesion is very simple, we have a single neighbor and our advertising a default route down into the vxlan fabric. One thing worth noting here. The `advertise l2vpn evpn` line is what causes routes learned from the firewall to be re-advertised into the EVPN control plane as Type-5 prefixes — without it, those routes would be locally installed on bgw but invisible to the rest of the fabric. 
 
 **BGW**
 ```
@@ -111,7 +109,6 @@ router bgp 65002
 ```
 
 #### VLAN-to-VNI Mapping for VLAN 900
-
 VLAN 900 also needs a VNI so it can be carried across the fabric if needed:
 
 ```
@@ -132,7 +129,6 @@ interface nve1
 ---
 
 ### L2 Extension — Secured VLANs on the Trunk
-
 For the secured hosts, no SVI or routing is configured on bgw for VLANs 10 and 11. The VLANs are simply extended from the VXLAN fabric across the trunk to the firewall. The firewall itself holds the SVIs for `192.168.10.1` and `192.168.11.1` and acts as the gateway.
 
 On bgw, the EVPN instances for VLANs 10 and 11 are configured normally (the fabric still needs to carry MAC/IP reachability for those hosts), but there are no local SVIs routing traffic for those subnets:
@@ -154,5 +150,51 @@ vlan configuration 11
 When a secured host sends traffic, it arrives at the leaf (sw-1 or sw-2) via VXLAN, gets forwarded to bgw as a bridged L2 frame, and exits the trunk on the appropriate VLAN toward the firewall. The firewall routes it, applies policy, and sends it onward. There is no symmetric IRB path for these hosts, the firewall is the single choke point by design.
 
 ---
+
+## Traffic Flow Walkthrough
+
+### Routed traffic — Host-1 to an external destination
+1. Host-1 (`10.0.20.5`) sends a packet to an external IP. Its gateway is the DAG on sw-1 (`10.0.20.1`).
+2. sw-1 routes within VRF `core`. It has a default route learned from bgw via EVPN Type-5, with bgw's VTEP as the next-hop.
+3. sw-1 encapsulates in VXLAN using the L3 VNI (10100) and sends it to bgw.
+4. bgw decapsulates, looks up the destination in VRF `core`, and finds the route points to `10.90.0.2` via Vlan900.
+5. bgw sends the packet out the trunk on VLAN 900 to the firewall, which applies policy and forwards externally.
+
+### Protected traffic — secured-host-1 to an external destination
+1. `secured-host-1` (`192.168.10.5`) sends a packet. Its gateway is the firewall's interface on VLAN 10 (`192.168.10.1`).
+2. The frame is bridged — not routed — across the fabric via VXLAN using the L2 VNI (10010) to bgw.
+3. bgw forwards the frame out the trunk on VLAN 10 directly to the firewall.
+4. The firewall routes and applies policy. No fabric routing is involved.
+
+---
+
+### Verification
+Lets try to ping from 1 of the secured host to the internal network `10.0.20.1`, I have place an ACL on the FW that should block this traffic and that is what we see. 
+
+On the Host
+```
+cisco@secured-host1:~$  ping 10.0.20.1
+PING 10.0.20.1 (10.0.20.1) 56(84) bytes of data.
+From 192.168.10.1 icmp_seq=1 Packet filtered
+From 192.168.10.1 icmp_seq=2 Packet filtered
+From 192.168.10.1 icmp_seq=3 Packet filtered
+```
+
+On the FW
+```
+Apr 25 18:15:44.529: %SEC-6-IPACCESSLOGDP: list secured denied icmp 192.168.10.5 -> 10.0.20.1 (0/0), 1 packet  
+```
+
+However, the secured host can reach the internet.
+```
+cisco@secured-host1:~$ ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=117 time=14.6 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=117 time=12.5 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=117 time=11.5 ms
+64 bytes from 8.8.8.8: icmp_seq=4 ttl=117 time=11.8 ms
+```
+## Download
+The CML lab file is available in the [CML-Labs repository](https://github.com/Michaelbecze/CML-Labs) as `External_Connections_VXLAN_L2.yaml`. Import it directly into CML and bring up the topology — configurations are pre-loaded on all nodes. Please note that for some unknown reason you have to shut and no shut interface vlan 100 (L3 Transit) to get routing to work.  
 
 
