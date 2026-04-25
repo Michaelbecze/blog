@@ -4,8 +4,8 @@ There are alot of different ways to bring in external connections into a VXLAN f
 
 ## Lab Topology
 
-For this lab I have built a classic spine-leaf topology. Two spines act as BGP route reflectors with no VXLAN awareness of their own — their only job is OSPF underlay reachability and reflecting EVPN routes between leaves. Three leaf switches hang below them, each running a VTEP and hosting the Distributed Anycast Gateway for their locally attached subnets.
-The hosts are split into two groups. Host-1 and Host-2 sit in internal data subnets (10.0.20.0/24 and 10.0.21.0/24) and use the DAG on their local leaf as their default gateway — traffic between them stays entirely within the fabric and is routed symmetrically via the L3 VNI. The secured hosts are in a different category: secured-host-1 and secured-host-2 sit in the 192.168.10.0/24 and 192.168.11.0/24 subnets and are not permitted to route freely inside the fabric. Their traffic must pass through the firewall before reaching anything outside their own subnet.
+For this lab I have built a classic spine-leaf topology. Two spines act as BGP route reflectors with no VXLAN awareness of their own, their only job is OSPF underlay reachability and reflecting EVPN routes between leaves. Three leaf switches hang below them, each running a VTEP and hosting the Distributed Anycast Gateway for their locally attached subnets.
+The hosts are split into two groups. Host-1 and Host-2 sit in internal data subnets (10.0.20.0/24 and 10.0.21.0/24) and use the DAG on their local leaf as their default gateway — traffic between them stays entirely within the fabric and is routed symmetrically via the L3 VNI (Vlan 100). The secured hosts are in a different category: secured-host-1 and secured-host-2 sit in the 192.168.10.0/24 and 192.168.11.0/24 subnets and are not permitted to route freely inside the fabric. Their traffic must pass through the firewall before reaching anything outside their own subnet.
 
 The real action is on the Border Gateway (bgw). This node is where the VXLAN fabric meets the outside world, and it does two distinct things at once. For the routed internal networks it terminates the L3 VNI, holds the VRF core routing table, and runs an eBGP session to the firewall over a dedicated handoff segment (VLAN 900, 10.90.0.0/30) — routes learned from the firewall are redistributed into VRF core and propagated to every leaf as EVPN Type-5 prefixes. For the secured L2 networks it extends the VXLAN-backed VLANs (10 and 11) across a dot1q trunk to the firewall, so those hosts appear as local Layer 2 adjacencies on the firewall's interfaces rather than routed destinations. 
 
@@ -33,7 +33,7 @@ The real action is on the Border Gateway (bgw). This node is where the VXLAN fab
 I have covered in my other post how to set up VXLAN, both l2 and l3 so I dont want to go over that again. If you would like to brush up on that you can visit [Intergrated Routing And Bridgeing In L3vxlan](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html](https://michaelbecze.github.io/blog/2026/03/15/Intergrated-routing-and-bridgeing-in-L3VXLAN.html)) and [Sysmmetric Irb Anycast Gateway On Catalyst](https://michaelbecze.github.io/blog/2026/03/29/Sysmmetric-IRB-Anycast-Gateway-on-Catalyst.html). 
 
 
-We have 2 sperate reachability methods that are going on over a simple **switchport trunk**. There is a routed vlan 900 that carries all the Internet traffic and then there are stretch vlans for the secured host that must go through the firewall. The link between the BGW and the firewall is very simple. On the BGW side it is a simple trunk and then on the Firewall side it is routed sub interfaces. I am just using a router with ACL as a Firefwall of this example.
+We have 2 sperate reachability methods that are going on over a simple **switchport trunk**. There is a routed vlan 900 that carries all the Internet traffic and then there are stretch vlans for the secured host that must go through the firewall. The link between the BGW and the firewall is very simple. On the BGW side it is a simple trunk and then on the Firewall side it is routed sub interfaces. Reaching back to my time doing the CCNA this is called "Router on a stick." I am just using a router with ACL as a Firefwall of this example. Here we have the 2 protected Vlans 10 and 11 that terminate on the firewall/router and then vlan 900 which is the routed network that carries all the internal traffic. 
 
 #### BGW
 ```
@@ -65,7 +65,18 @@ interface GigabitEthernet0/0.900
 
 ### L3 Handoff — VLAN 900 SVI and eBGP
 
-VLAN 900 is a small `/30` point-to-point segment between bgw and the firewall. It lives inside VRF `core` so the eBGP session runs entirely within the tenant routing domain and never touches the global table.
+VLAN 900 is a small `/30` point-to-point segment between bgw and the firewall. It lives inside VRF `core` so the eBGP session runs entirely within the tenant routing domain and never touches the global table. Here is the configuration of the VRF and the interface vlan 900. Remember that we need to use the keyword "stiching" to export and import our routes into evpn on the ios xe platform.
+
+```
+vrf definition core
+ rd 65001:5
+ !
+ address-family ipv4
+  route-target export 65001:1
+  route-target import 65001:1
+  route-target export 65001:1 stitching
+  route-target import 65001:1 stitching
+```
 
 ```
 interface Vlan900
@@ -74,12 +85,13 @@ interface Vlan900
  no autostate
 ```
 
-`no autostate` ensures the SVI stays up even if no physical ports are active in VLAN 900, important because the only port in this VLAN is the trunk to the firewall, and you don't want a brief link flap to pull down the eBGP session.
+`no autostate` ensures the SVI stays up even if no physical ports are active in VLAN 900.
 
 #### The eBGP Session
 
-The firewall (`10.90.0.2`) is in AS 65002. The eBGP session is configured under the VRF `core` address family so routes learned from the firewall are installed directly into VRF `core` and immediately redistributable as EVPN Type-5 to the rest of the fabric.
+ The eBGP session on the BGW is configured under the VRF `core` address family so routes learned from the firewall are installed directly into VRF `core` and immediately redistributable as EVPN Type-5 to the rest of the fabric. The Firewall BGP seesion is very simple, we have a single neighbor and our advertising a default route down into the vxlan fabric. One thing worth noting here. The `advertise l2vpn evpn` line is what causes routes learned from the firewall to be re-advertised into the EVPN control plane as Type-5 prefixes — without it, those routes would be locally installed on bgw but invisible to the rest of the fabric. 
 
+**BGW**
 ```
 router bgp 65001
  !
@@ -90,8 +102,13 @@ router bgp 65001
   neighbor 10.90.0.2 activate
  exit-address-family
 ```
-
-A few things worth noting here. The `advertise l2vpn evpn` line is what causes routes learned from the firewall to be re-advertised into the EVPN control plane as Type-5 prefixes — without it, those routes would be locally installed on bgw but invisible to the rest of the fabric. The `network` statement advertises the handoff subnet itself so the firewall has a return path. In production you would also typically add `default-information originate` on the firewall side (or a static default toward the fabric) so a default route propagates inward.
+**FW**
+```
+router bgp 65002
+ bgp log-neighbor-changes
+ network 0.0.0.0
+ neighbor 10.90.0.1 remote-as 65001
+```
 
 #### VLAN-to-VNI Mapping for VLAN 900
 
@@ -131,7 +148,7 @@ vlan configuration 11
  member evpn-instance 4 vni 10011
 ```
 
-When a secured host sends traffic, it arrives at the leaf (sw-1 or sw-2) via VXLAN, gets forwarded to bgw as a bridged L2 frame, and exits the trunk on the appropriate VLAN toward the firewall. The firewall routes it, applies policy, and sends it onward. There is no symmetric IRB path for these hosts — the firewall is the single choke point by design.
+When a secured host sends traffic, it arrives at the leaf (sw-1 or sw-2) via VXLAN, gets forwarded to bgw as a bridged L2 frame, and exits the trunk on the appropriate VLAN toward the firewall. The firewall routes it, applies policy, and sends it onward. There is no symmetric IRB path for these hosts, the firewall is the single choke point by design.
 
 ---
 
