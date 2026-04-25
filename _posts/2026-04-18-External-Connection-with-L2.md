@@ -1,6 +1,6 @@
 ## External Connections into a VXLAN fabric using a L2 link
+There are a lot of different ways to bring external connections into a VXLAN fabric. Normally, external connections are made through a **border leaf**, which is simply another leaf switch except it typically does not have end hosts attached to it. The border leaf has a VTEP and participates in the VXLAN fabric just like any other leaf. For this lab, we are bringing in an external connection in the form of a firewall using a Layer 2 link between our border leaf and the firewall. I will show how we can have a protected network that uses a **centralized gateway model**, where all traffic from protected subnets must traverse the firewall, alongside an internal network that uses a **distributed anycast gateway** for internal traffic but must still use the firewall to reach external networks.
 
-There are alot of different ways to bring in external connections into a VXLAN fabric. Normally, external connections are made on a "boarder leaf" which is just another leaf excpet it does not noramlly have end hosts attached to it. The board leaf has a VTEP and particiates in the VXLAN fabric just like any other leaf would do. For this lab we are going to bring a an external conneccion in the form of a firewall using a L2 link between our boarder leaf and the firewall. I will show how we can have a protected network that uses a Centralized Gateway Model so that all traffic from "protected" subnets must traverse the firewall along side an interanl network that uses a Distributed Anycast Gateway for for internal traffic but must use the firewall to reach an external network. 
 
 ## Lab Topology
 
@@ -64,7 +64,7 @@ interface GigabitEthernet0/0.900
 ---
 
 ### L3 Handoff — VLAN 900 SVI and eBGP
-VLAN 900 is a small `/30` point-to-point segment between bgw and the firewall. It lives inside VRF `core` so the eBGP session runs entirely within the tenant routing domain and never touches the global table. Here is the configuration of the VRF and the interface vlan 900. Remember that we need to use the keyword "stiching" to export and import our routes into evpn on the ios xe platform.
+VLAN 900 is a small `/30` point-to-point segment between bgw and the firewall. It lives inside VRF `core` so the eBGP session runs entirely within the tenant routing domain and never touches the global table. Here is the configuration of the VRF and the interface vlan 900. Remember that we need to use the keyword `stitching` to export and import our routes into evpn on the ios xe platform.
 
 ```
 vrf definition core
