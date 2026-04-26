@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+  const tags = [...new Set(allPosts.flatMap((p) => p.data.tags.map((t) => t.toLowerCase())))];
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: allPosts
+        .filter((p) => p.data.tags.some((t) => t.toLowerCase() === tag))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+---
+<BaseLayout title={`Posts tagged: ${tag}`}>
+  <div class="tag-page-header">
+    <a href={base} class="back-link">← All posts</a>
+    <h1>
+      Posts tagged
+      <span class="tag">{tag}</span>
+    </h1>
+    <p>{posts.length} post{posts.length !== 1 ? 's' : ''}</p>
+  </div>
+
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li class="post-item">
+        <div class="post-item-meta">
+          <time class="post-date">{formatDate(post.data.date)}</time>
+          <div class="post-tags">
+            {post.data.tags.map((t) => (
+              <a href={`${base}tags/${t.toLowerCase()}/`} class="tag">{t}</a>
+            ))}
+          </div>
+        </div>
+        <h2 class="post-title">
+          <a href={`${base}posts/${post.slug}/`}>{post.data.title}</a>
+        </h2>
+        {post.data.description && (
+          <p class="post-excerpt">{post.data.description}</p>
+        )}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+<BaseLayout title="About" description="About The Forwarding Table — a technical networking blog by Michael.">
+  <div class="about-page">
+    <a href={base} class="back-link">← All posts</a>
+    <h1>About</h1>
+    <div class="about-content">
+      <p>
+        Hi, I'm Michael — a network engineer with a passion for building, troubleshooting, and
+        explaining complex infrastructure.
+      </p>
+      <p>
+        This blog is where I share what I'm currently working on, studying, and learning as I
+        continue to grow in the field. Some posts are deep technical dives, others are lab notes
+        or ideas I'm still working through, but all of it reflects real experience and curiosity
+        about how networks actually behave.
+      </p>
+      <p>
+        If you're interested in enterprise networking, routing and switching, or the details that
+        live beyond the CLI, you're in the right place.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

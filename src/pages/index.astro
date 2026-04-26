@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+const base = import.meta.env.BASE_URL;
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+---
+<BaseLayout title="The Forwarding Table">
+  <div class="hero">
+    <h1>The Forwarding Table</h1>
+    <p>A technical blog on routing decisions, packet flow, and how data moves through real networks.</p>
+  </div>
+
+  {allTags.length > 0 && (
+    <div class="tag-bar">
+      <span class="tag-bar-label">Browse by topic:</span>
+      {allTags.map((tag) => (
+        <a href={`${base}tags/${tag.toLowerCase()}/`} class="tag">{tag}</a>
+      ))}
+    </div>
+  )}
+
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li class="post-item">
+        <div class="post-item-meta">
+          <time class="post-date">{formatDate(post.data.date)}</time>
+          <div class="post-tags">
+            {post.data.tags.map((tag) => (
+              <a href={`${base}tags/${tag.toLowerCase()}/`} class="tag">{tag}</a>
+            ))}
+          </div>
+        </div>
+        <h2 class="post-title">
+          <a href={`${base}posts/${post.slug}/`}>{post.data.title}</a>
+        </h2>
+        {post.data.description && (
+          <p class="post-excerpt">{post.data.description}</p>
+        )}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
