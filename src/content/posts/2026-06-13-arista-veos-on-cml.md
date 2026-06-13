@@ -16,6 +16,8 @@ You'll need a free Arista account. Log in at arista.com, then go to **Support �
 - **Aboot** — the bootloader (grab the *serial* variant, e.g. `Aboot-veos-serial-8.0.2.iso`)
 - **vEOS-lab** — the actual EOS image, provided as a `.qcow2` directly (no conversion needed)
 
+![evos-downloaded](/blog/assets/Download-veos.png)
+
 ## Step 2: Convert the Aboot Image
 
 The Aboot file downloads as an ISO and needs to become a `.qcow2`. I did this on a Mac with Homebrew:
@@ -118,3 +120,5 @@ Welcome to Arista Networks EOS 4.32.1F
 ```
 
 Log in with username `admin` and no password, then `enable` to reach privileged mode. Run `show version` to confirm everything's healthy. You will also need to run `zerotouch cancel` to stop the zerotouch process.
+
+Hopes this helps and happy labbing!
