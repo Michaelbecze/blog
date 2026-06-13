@@ -5,7 +5,7 @@ tags: ["Arista", "CML", "EOS"]
 description: "How to add Arista vEOS-lab to Cisco Modeling Labs (CML) so you can run real EOS CLI alongside IOS-XE nodes."
 ---
 
-CML is no longer a Cisco-only sandbox. With a bit of setup, you can drop Arista's vEOS-lab into your topology and get real EOS CLI alongside your IOS-XE nodes — perfect for cross-vendor labbing, VXLAN/EVPN testing, or studying for Arista's ACE certifications.
+CML is no longer a Cisco-only sandbox. With a bit of setup, you can drop Arista's vEOS-lab into your topology and get real EOS CLI alongside your IOS-XE nodes, perfect for cross-vendor labbing, VXLAN/EVPN testing, or studying for Arista's ACE certifications.
 
 Here's how I got it running.
 
