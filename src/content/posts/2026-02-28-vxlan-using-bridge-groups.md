@@ -65,7 +65,7 @@ The configuration is built up in layers:
 4. VXLAN is configured on the NVE interface, mapping VNI 10010 to the EVPN instance — this is the data plane that stretches the Layer 2 segment across the tunnel
 5. Finally, a Bridge Domain is created and tied to both the physical access interface (via a service instance with dot1q encapsulation) and the EVPN/VXLAN instance, completing the stretched Layer 2 domain
 
-![Basic Lab set up](/blog/assets/VXLAN over Bridge GRoups.png)
+![Basic Lab set up](/blog/assets/vxlan-over-bridge-groups.png)
 
 #### HQ Side
 - HQ-Host1: Ubuntu endpoint
