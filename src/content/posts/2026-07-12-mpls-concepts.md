@@ -106,10 +106,11 @@ This information is used to build the **Label Forwarding Information Base (LFIB)
 
 ![MPLS Control Plane — how the IGP, LDP, RIB, and LIB interact to build the LFIB](/blog/assets/mpls-control-plane.png)
 
+**LIB (Label Information Base):**
 ```
 R2# show mpls ldp bindings
 ```
-
+**LFIB (Label Forwarding Information Base):**
 ```
 R2# show mpls forwarding-table
 ```
@@ -140,11 +141,9 @@ Receives the packet, reads the service label to identify the VPN or pseudowire i
 
 ## BGP-Free Core
 
-One of the major architectural benefits of MPLS is that **P routers do not need to run BGP**. In an MPLS VPN deployment, customer routes are exchanged only between PE routers using **MP-BGP (Multi-Protocol BGP)**. The P routers in the core only run an IGP (OSPF or IS-IS) and LDP. They have no knowledge of customer prefixes at all — they just swap labels.
+One of the major architectural benefits of MPLS is that P routers do not need to run BGP. In an MPLS VPN deployment, customer routes are exchanged only between PE routers using **MP-BGP (Multi-Protocol BGP)**. The P routers in the core only run an IGP (OSPF or IS-IS) and LDP. They have no knowledge of customer prefixes at all — they just swap labels.
 
-This is called a **BGP-free core** and is fundamental to how service providers scale. The core doesn't need to carry full routing tables for every customer; it just needs to get labelled packets from one PE to another.
-
-To avoid a full BGP mesh between all PE routers, **Route Reflectors (RR)** are used. The RR re-advertises VPN routes between PE routers without needing to participate in MPLS forwarding itself.
+This is called a **BGP-free core**. To avoid a full BGP mesh between all PE routers, **Route Reflectors (RR)** can be used. The RR re-advertises VPN routes between PE routers without needing to participate in MPLS forwarding itself.
 
 ### MP-BGP and VPN Concepts
 
@@ -156,15 +155,13 @@ When BGP carries VPN routes with label information, it's referred to as **MP-BGP
 
 **VPNv4 Route** — A customer IPv4 route with an RD prepended, carried in MP-BGP between PE routers. The RT is carried as a BGP community attribute alongside it.
 
-These will be covered in detail in the upcoming L3VPN and L2VPN posts.
-
 ---
 
 ## Basic MPLS Configuration
 
 ### Prerequisites
 
-Underlay IGP reachability must be in place before enabling MPLS. MPLS sits on top of your existing OSPF or IS-IS.
+Underlay IGP reachability must be in place before enabling MPLS. MPLS sits on top of your existing OSPF or IS-IS ensuring Loopback reachablitiy.
 
 ### Enable LDP
 
