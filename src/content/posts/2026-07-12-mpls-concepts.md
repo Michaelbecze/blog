@@ -10,9 +10,9 @@ I have been studying MPLS and though I would share some of my notes on the topic
 ---
 ## What is MPLS?
 
-**Multi-Protocol Label Switching (MPLS)** is a packet-forwarding method where short, fixed-length labels — rather than IP headers — are used to make forwarding decisions. When a packet enters an MPLS network, a label is pushed onto it. Every router in the core then forwards the packet purely by swapping that label for a new one, without ever looking at the IP header. When the packet exits, the label is removed and normal IP forwarding resumes.
+**Multi-Protocol Label Switching (MPLS)** is a packet-forwarding method where short fixed-length labels, rather than IP headers, are used to make forwarding decisions. When a packet enters an MPLS network, a label is pushed onto it. Every router in the core then forwards the packet purely by swapping that label for a new one, without ever looking at the IP header. When the packet exits, the label is removed and normal IP forwarding resumes.
 
-This makes MPLS significantly more efficient than traditional IP routing in the core. An IP router needs to perform a longest-prefix match on the full routing table for every packet. An MPLS router does a single, exact lookup against a small label table — much faster at scale.
+This makes MPLS significantly more efficient than traditional IP routing in the core. An IP router needs to perform a longest-prefix match on the full routing table for every packet. An MPLS router does a single, exact lookup against a small label table.
 
 MPLS is also technically a tunneling method. It supports multiple services over the same core infrastructure: IPv4, IPv6, Ethernet pseudowires, L2VPNs, L3VPNs, and more. That flexibility is why it became the dominant transport technology in service provider networks.
 
@@ -41,7 +41,7 @@ Common FEC classifications include:
 - Protocol type
 - VPN membership
 
-Under normal MPLS operation, the path a packet takes is determined by the underlying IGP — whichever path OSPF or IS-IS selects. With **Traffic Engineering (RSVP-TE)**, the ingress LSR can compute and signal an explicit path that satisfies constraints like bandwidth, latency, or link affinity. RSVP-TE signals hop-by-hop between routers to reserve resources and assign labels along the chosen path — this is what enables MPLS-TE to route around congestion rather than just following the shortest IGP path.
+Under normal MPLS LDP operation, the path a packet takes is determined by the underlying IGP,  whichever path OSPF or IS-IS selects. 
 
 ---
 
@@ -104,8 +104,13 @@ Each router then advertises its label bindings to all LDP neighbours. After exch
 
 This information is used to build the **Label Forwarding Information Base (LFIB)** — the data-plane table that drives actual forwarding.
 
+![MPLS Control Plane — how the IGP, LDP, RIB, and LIB interact to build the LFIB](/blog/assets/mpls-control-plane.png)
+
 ```
 R2# show mpls ldp bindings
+```
+
+```
 R2# show mpls forwarding-table
 ```
 
