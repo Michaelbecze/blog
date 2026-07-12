@@ -5,10 +5,9 @@ tags: ["MPLS", "Networking", "Routing"]
 description: "A look at how Multi-Protocol Label Switching works — from the label header and LDP to forwarding behaviour and the BGP-free core."
 ---
 
-Most of the overlay technologies covered in previous posts — VXLAN, pseudowires, L3VPNs — have MPLS sitting underneath them in service provider and larger enterprise networks. Before getting into L2 and L3 MPLS VPNs in future posts, it's worth building a solid understanding of how MPLS actually works: what labels are, how they get distributed, and what happens to a packet as it crosses an MPLS domain.
+I have been studying MPLS and though I would share some of my notes on the topic that have been useful to me. I plan to do more on the topic as time permits. 
 
 ---
-
 ## What is MPLS?
 
 **Multi-Protocol Label Switching (MPLS)** is a packet-forwarding method where short, fixed-length labels — rather than IP headers — are used to make forwarding decisions. When a packet enters an MPLS network, a label is pushed onto it. Every router in the core then forwards the packet purely by swapping that label for a new one, without ever looking at the IP header. When the packet exits, the label is removed and normal IP forwarding resumes.
