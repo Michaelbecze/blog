@@ -232,3 +232,9 @@ B     192.168.200.0/24 [20/0] via 100.65.1.1, 17:23:00
 ```
 
 This looks good!
+
+---
+## Download
+Here is the CML lab file to try it out for yourself.
+
+[Download the lab file](https://github.com/Michaelbecze/CML-Labs/blob/main/MPLS_-_L3VPN.yaml)
