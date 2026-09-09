@@ -58,7 +58,12 @@ ntp_servers:
 dns_servers:
   - 8.8.8.8
   - 8.8.4.4
+
+ansible_user: automation_svc
+ansible_password: "{{ vault_ansible_password }}"
 ```
+
+The `ansible_user` and `ansible_password` above are a common thing to define at the group level since most devices in a group share the same login. Note that the password isn't written in plaintext, it's pulled from a vaulted variable (`vault_ansible_password`) using [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html). Never commit real credentials to group_vars/host_vars in plaintext, even in a private repo.
 
 ### The Host Vars folder
 The Host Vars folder contains files for all hosts that were defined in the host file. The file names must match what was defined in the host file. These files contain all the variables that are specific to each host, think things like IP address, and BGP information.
