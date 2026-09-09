@@ -93,7 +93,7 @@ Ansible expects the Roles folder to be formatted in a specific way. Under Roles 
 
 A role can also include a few other folders as a project grows: `handlers` (for tasks that only run when notified, like saving a config), `defaults` (for easily overridable default variable values), and `vars` (for variables specific to the role itself). We won't dig into those here, but it's worth knowing they exist once you start pulling roles from Ansible Galaxy or building more complex ones.
 
-Here is an example of a Jinja file used for BGP configuration:
+Here is an example of a Jinja file used for BGP configuration, note how the varibles are all pulled from the "host_vars" folder:
 
 **roles/bgp/templates/bgp.j2**
 ```jinja
