@@ -106,7 +106,6 @@ The `common` and `underlay` role run against `fabric` (every spine and leaf). `v
 ---
 ### How the Pipeline Works
 The **before_script** - This tells the runner what to do before the playbook is run. Here we are just launching a virtual python environment and then installing Ansible. 
-
 ```
 default:
   before_script:
