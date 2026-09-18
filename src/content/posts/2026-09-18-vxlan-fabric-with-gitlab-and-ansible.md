@@ -25,7 +25,7 @@ Management Interfaces
 #### GitLab
 In this lab I have GitLab installed on an Ubuntu machine called `gitlab`. This machine only hosts the GitLab application and the remote git repo. In addition to this, I have a GitLab Runner installed on a separate Ubuntu machine called `ansible-runner`. This machine exists purely to be an execution environment for GitLab and has connectivity to every device in the CML environment.
 
-Let's take a high-level look at the Ansible file structure and what each part is doing. I have also uploaded this project to git so that you can take a look at how Ansible is working. Here is the link to that: [github.com/Michaelbecze/ansible-arista-fabric](https://github.com/Michaelbecze/ansible-arista-fabric/tree/main)
+Let's take a high-level look at the Ansible file structure and what each part is doing. I have also uploaded this project to github so that you can take a look at how Ansible is working. Here is the link to that: [github.com/Michaelbecze/ansible-arista-fabric](https://github.com/Michaelbecze/ansible-arista-fabric/tree/main)
 
 `.gitlab-ci.yml` — tells the GitLab Runner what to do
 
