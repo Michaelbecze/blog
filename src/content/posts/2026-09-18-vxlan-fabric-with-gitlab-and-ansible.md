@@ -34,6 +34,7 @@ Let's take a high-level look at the Ansible file structure and what each part is
 `inventory/fabric/group_vars/` — variables shared by every host in a group (all, spines, leaves)
 
 `inventory/fabric/host_vars/` — one file per device, for variables that only apply to that device
+
 `playbooks/` — where the Ansible plays live
 
 `roles/` — where the actual configuration logic lives, split into four roles
