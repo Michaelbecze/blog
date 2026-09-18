@@ -13,7 +13,7 @@ It is my intention to use this lab as a base to add other technologies onto late
 ### Lab Overview
 
 #### CML
-In CML we have a pretty straightforward Spine-Leaf design. Each switch is attached to an `mgmt-sw`, which is connected to my home network. I'm using a VRF called `mgmt` on all the switches so that the management plane is kept separate from the default routing table. This is needed so the GitLab Runner has connectivity to every switch in the topology, without that reachability depending on (or interfering with) whatever the fabric itself is doing in the default VRF. Other than management, there is no further configuration on these switches — the rest is done with Ansible.
+In CML we have a pretty straightforward Spine-Leaf design. Each switch is attached to an `mgmt-sw`, which is connected to my home network. I'm using a VRF called `mgmt` on all the switches so that the management plane is kept separate from the default routing table. This is needed so the GitLab Runner has connectivity to every switch in the topology, without that reachability depending on (or interfering with) whatever the fabric itself is doing in the default VRF. Other than management, there is no further configuration on these switches, the rest is done with Ansible.
 ![Spine-Leaf topology in CML](/blog/assets/Ansible-Arista-CML-Topo.png)
 
 Management Interfaces
