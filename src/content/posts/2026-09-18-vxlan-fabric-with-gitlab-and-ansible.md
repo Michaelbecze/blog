@@ -28,10 +28,14 @@ In this lab I have GitLab installed on an Ubuntu machine called `gitlab`. This m
 Let's take a high-level look at the Ansible file structure and what each part is doing. I have also uploaded this project to git so that you can take a look at how Ansible is working. Here is the link to that: [github.com/Michaelbecze/ansible-arista-fabric](https://github.com/Michaelbecze/ansible-arista-fabric/tree/main)
 
 `.gitlab-ci.yml` — tells the GitLab Runner what to do
+
 `inventory/fabric/hosts.yml` — defines all of the devices that will be configured
+
 `inventory/fabric/group_vars/` — variables shared by every host in a group (all, spines, leaves)
+
 `inventory/fabric/host_vars/` — one file per device, for variables that only apply to that device
 `playbooks/` — where the Ansible plays live
+
 `roles/` — where the actual configuration logic lives, split into four roles
 
 **Our File Structure**
