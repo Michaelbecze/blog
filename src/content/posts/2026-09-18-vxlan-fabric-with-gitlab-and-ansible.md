@@ -1,10 +1,10 @@
 ---
-title: "Building a VXLAN Fabric with GitLab CI and Ansible"
+title: "Building an Arista VXLAN Fabric with GitLab CI and Ansible"
 date: 2026-09-18
 tags: ["Arista", "VXLAN", "Ansible", "GitLab", "Automation", "EVPN"]
 description: "Building a Spine-Leaf VXLAN/EVPN fabric in CML, managed end to end with an Ansible role structure and a GitLab CI/CD pipeline for validation and deployment."
 ---
-In this post I will be going over building a data center VXLAN fabric using GitLab for version control and continuous integration, and Ansible to build and push the configuration. I will be building this lab in CML and will attach all of the management interfaces of the switches to a network that is reachable by the GitLab Runner. For brevity I am not going to go over how to get that connectivity configured.
+In this post I will be going over building a data center VXLAN fabric using GitLab for version control and continuous integration, Ansible to build and push the configuration and Arista vEOS switches. I will be building this lab in CML and will attach all of the management interfaces of the switches to a network that is reachable by the GitLab Runner. For brevity I am not going to go over how to get that connectivity configured.
 
 It is my intention to use this lab as a base to add other technologies onto later, such as Docker, NetBox, and other advanced configurations.
 
