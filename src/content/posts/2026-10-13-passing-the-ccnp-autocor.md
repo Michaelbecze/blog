@@ -45,7 +45,7 @@ If I could go back and do it again, I’d skip the cramming and start with hands
 My advice for anyone preparing:
 
 - **Pick a course that fits how you learn.** INE wasn’t the right fit for me, and switching to CBT Nuggets made a big difference.
-- **Lab everything.** If you can’t build it from scratch without AI or Google, you don’t know it yet.
+- **Lab everything.** 
 - **Shore up your Python early.** It shows up everywhere, and the harder questions assume you can read unfamiliar code quickly.
 - **Use the blueprint as your checklist.** It’s an accurate map of what you’ll face.
 - **Don’t be discouraged by a failed attempt.** Mine was the most useful part of my prep, since it showed me exactly where my gaps were.
